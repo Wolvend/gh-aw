@@ -250,10 +250,92 @@ Mount syntax follows Docker's format: `source:destination:mode`
 - `destination`: Path inside the container
 - `mode`: Either `ro` (read-only) or `rw` (read-write)
 
-Custom mounts are useful for:
-- Providing access to datasets or configuration files
-- Making custom tools available in the container
-- Sharing cache directories between host and container
+###### Common Use Cases
+
+**Database Clients:**
+
+```yaml wrap
+sandbox:
+  agent:
+    id: awf
+    mounts:
+      - "/usr/bin/psql:/usr/bin/psql:ro"
+      - "/usr/bin/mysql:/usr/bin/mysql:ro"
+      - "/usr/bin/redis-cli:/usr/bin/redis-cli:ro"
+      - "/usr/lib/x86_64-linux-gnu/libpq.so.5:/usr/lib/x86_64-linux-gnu/libpq.so.5:ro"
+```
+
+**Cloud CLI Tools:**
+
+```yaml wrap
+sandbox:
+  agent:
+    id: awf
+    mounts:
+      - "/usr/local/bin/aws:/usr/local/bin/aws:ro"
+      - "/usr/local/bin/gcloud:/usr/local/bin/gcloud:ro"
+      - "/usr/local/bin/az:/usr/local/bin/az:ro"
+```
+
+**Build Tools:**
+
+```yaml wrap
+sandbox:
+  agent:
+    id: awf
+    mounts:
+      - "/usr/bin/make:/usr/bin/make:ro"
+      - "/usr/bin/cmake:/usr/bin/cmake:ro"
+      - "/usr/bin/gcc:/usr/bin/gcc:ro"
+```
+
+**Container Tools:**
+
+```yaml wrap
+sandbox:
+  agent:
+    id: awf
+    mounts:
+      - "/usr/bin/docker:/usr/bin/docker:ro"
+      - "/usr/bin/kubectl:/usr/bin/kubectl:ro"
+      - "/usr/bin/helm:/usr/bin/helm:ro"
+```
+
+**Shared Libraries:**
+
+```yaml wrap
+sandbox:
+  agent:
+    id: awf
+    mounts:
+      - "/usr/lib/x86_64-linux-gnu/libssl.so.3:/usr/lib/x86_64-linux-gnu/libssl.so.3:ro"
+      - "/usr/lib/x86_64-linux-gnu/libcrypto.so.3:/usr/lib/x86_64-linux-gnu/libcrypto.so.3:ro"
+```
+
+**Configuration Directories:**
+
+```yaml wrap
+sandbox:
+  agent:
+    id: awf
+    mounts:
+      - "/usr/share/ca-certificates:/usr/share/ca-certificates:ro"
+      - "/etc/ssl/certs:/etc/ssl/certs:ro"
+```
+
+> [!WARNING]
+> Security Considerations
+> - Always use read-only (`:ro`) mode unless write access is absolutely necessary
+> - Never mount sensitive system directories like `/etc/passwd` or `/root`
+> - Docker socket (`/var/run/docker.sock`) mounting is not supported for security reasons
+> - Custom mounts are validated for proper syntax but not verified to exist on the host
+
+> [!TIP]
+> Best Practices
+> - Mount only the specific binaries and libraries your workflow needs
+> - Use absolute paths for both source and destination
+> - Group related mounts together for better organization
+> - Test mounts on your runner environment before deploying to production
 
 | Field | Type | Description |
 |-------|------|-------------|
