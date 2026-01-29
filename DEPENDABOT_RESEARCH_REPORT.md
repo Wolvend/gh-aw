@@ -8,7 +8,7 @@
 ## Executive Summary
 
 This bundle includes three dependency updates for the documentation site:
-- **Astro:** 5.16.12 → 5.16.15 (patch update)
+- **Astro:** 5.16.12 → 5.17.1 (minor update, installed via semver ^5.16.15)
 - **@astrojs/starlight:** 0.37.3 → 0.37.4 (patch update)
 - **@playwright/test:** 1.57.0 → 1.58.0 (minor update)
 
@@ -16,19 +16,27 @@ This bundle includes three dependency updates for the documentation site:
 
 ## Package Updates
 
-### 1. Astro: 5.16.12 → 5.16.15
+### 1. Astro: 5.16.12 → 5.17.1
 
-**Update Type:** Patch  
+**Update Type:** Minor (installed via semver ^5.16.15)  
 **Risk Level:** 🟡 Low (breaking changes present but don't affect us)
 
 #### Version History
 - **5.16.13:** Multiple `<style>` and `<script>` tag rendering changes
-- **5.16.14:** Experimental Fonts API breaking changes
+- **5.16.14:** Experimental Fonts API breaking changes (local font providers)
 - **5.16.15:** Bug fixes and patches
+- **5.17.0:** New features (async parser support, Sharp kernel config, partitioned cookies, retainBody option, background property, dev toolbar placement)
+- **5.17.1:** Experimental Fonts API breaking change (removed getFontBuffer helper)
 
 #### Breaking Changes
 
-##### 5.16.14 - Experimental Fonts API
+##### 5.17.1 - Experimental Fonts API (getFontBuffer removal)
+- **Change:** Removed `getFontBuffer()` helper function from `astro:assets`
+- **Reason:** Caused significant memory usage during build
+- **Impact on our codebase:** ✅ None - We don't use the experimental Fonts API
+- **Verification:** Searched codebase for `getFontBuffer` - no matches found
+
+##### 5.16.14 - Experimental Fonts API (local providers)
 - **Change:** Modified local font provider configuration syntax
 - **Impact on our codebase:** ✅ None - We don't use the experimental Fonts API
 - **Verification:** Searched codebase for `experimental.*fonts` and `fontProviders` - no matches found
@@ -37,6 +45,14 @@ This bundle includes three dependency updates for the documentation site:
 - **Change:** Modified how multiple `<style>` and `<script>` tags are rendered in components
 - **Impact on our codebase:** ✅ None - Our Astro components follow standard patterns
 - **Verification:** Reviewed astro.config.mjs and custom components - no multi-tag edge cases
+
+#### New Features (5.17.0 - Non-Breaking)
+- Async parser support for Content Layer API
+- Sharp kernel configuration for image resizing
+- Partitioned cookies support
+- `retainBody` option for glob loader (reduces data store size)
+- `background` property for Image component
+- Dev toolbar placement configuration
 
 #### Migration Requirements
 None - breaking changes don't affect our usage patterns.
@@ -130,12 +146,12 @@ Current state shows 7 moderate severity vulnerabilities in transitive dependenci
 
 ## Actual Versions Installed
 
-Due to semver ranges in package.json, npm installed the latest compatible versions:
-- **Astro:** 5.17.1 (instead of requested 5.16.15)
+Due to semver ranges in package.json (`^5.16.15`), npm installed the latest compatible minor version:
+- **Astro:** 5.17.1 (latest version satisfying ^5.16.15)
 - **@astrojs/starlight:** 0.37.4 (as requested)
 - **@playwright/test:** 1.58.0 (as requested)
 
-This is expected behavior with `^` version ranges and provides additional bug fixes beyond the requested versions.
+This is expected behavior with `^` (caret) version ranges, which allows minor and patch updates. The 5.17.1 version includes all fixes and features from 5.16.x through 5.17.1.
 
 ---
 
@@ -143,9 +159,9 @@ This is expected behavior with `^` version ranges and provides additional bug fi
 
 | Package | Risk Level | Breaking Changes | Impact | Safe to Deploy |
 |---------|-----------|------------------|---------|----------------|
-| astro | 🟡 Low | Yes (Fonts API, style/script tags) | None - features not used | ✅ Yes |
+| astro | 🟡 Low | Yes (Fonts API: getFontBuffer removal, local provider config, style/script tags) | None - features not used | ✅ Yes |
 | @astrojs/starlight | 🟢 None | No | None - fully compatible | ✅ Yes |
-| @playwright/test | 🟡 Low | Yes (removed selectors) | None - selectors not used | ✅ Yes |
+| @playwright/test | 🟡 Low | Yes (removed selectors, devtools option) | None - selectors not used | ✅ Yes |
 
 **Overall:** ✅ **Safe for deployment** - All breaking changes verified to not affect our codebase.
 
