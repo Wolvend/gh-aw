@@ -4,12 +4,12 @@ This document identifies essential system libraries from `/lib` and `/lib64` dir
 
 ## Executive Summary
 
-This audit analyzed 14 common utilities (bash, sh, git, curl, jq, grep, awk, sed, tar, gzip, python3, node, go, java) to identify system library dependencies. A total of **46 unique system libraries** from `/lib` and `/lib64` directories were identified, categorized by priority level.
+This audit analyzed 14 common utilities (bash, sh, git, curl, jq, grep, awk, sed, tar, gzip, python3, node, go, java) to identify system library dependencies. A total of **47 unique system libraries** from `/lib` and `/lib64` directories were identified, categorized by priority level.
 
 **Key Findings:**
 - 10 **critical** libraries are essential for basic container operation
-- 15 **important** libraries support common utilities and networking
-- 21 **optional** libraries enable specialized functionality
+- 19 **important** libraries support common utilities and networking
+- 18 **optional** libraries enable specialized functionality
 - The dynamic linker (`ld-linux-x86-64.so.2`) is required for all dynamically linked executables
 - Core C library (`libc.so.6`) is the most fundamental dependency
 
@@ -761,7 +761,7 @@ java --version
 
 **Conclusion:** Minimal set enables most basic operations but lacks networking security libraries.
 
-#### Standard Set (Critical + Important = 25 Libraries)
+#### Standard Set (Critical + Important = 29 Libraries)
 - ✅ All utilities: Full functionality
 - ✅ curl: HTTPS works
 - ✅ git: Clone/push over HTTPS works
@@ -810,8 +810,8 @@ Most utilities depend on both:
 
 2. **Priority Levels:**
    - **Critical libraries:** Always mount (10 libraries)
-   - **Important libraries:** Mount for typical workflows (15 additional libraries)
-   - **Optional libraries:** Mount as needed for specific use cases (21 additional libraries)
+   - **Important libraries:** Mount for typical workflows (19 additional libraries)
+   - **Optional libraries:** Mount as needed for specific use cases (18 additional libraries)
 
 3. **Security:**
    - Read-only mounting prevents tampering
@@ -831,14 +831,14 @@ Most utilities depend on both:
 ## Related Documentation
 
 - [Agent Container Testing](./agent-container-testing.md) - Tool availability validation
-- [Agent Container Utilities](./agent-container-utilities.md) - Utility-to-library mapping (to be created)
+- [Agent Container Utilities](./agent-container-utilities.md) - Utility-to-library mapping
 - Issue #11971: Utility audit baseline
 - Issue #11972: `/usr/lib` shared libraries analysis
 - Issue #11970: Overall container hardening
 
 ## Appendix: Complete Library List
 
-### All 46 Libraries from `/lib` and `/lib64`
+### All 47 Libraries from `/lib` and `/lib64`
 
 1. `/lib64/ld-linux-x86-64.so.2` - Dynamic linker (CRITICAL)
 2. `libc.so.6` - C standard library (CRITICAL)

@@ -442,7 +442,7 @@ libstdc++.so.6
 
 ### API/Network Workflow
 **Utilities:** bash, curl, jq  
-**Required Libraries:** Critical + Important (25 libraries)
+**Required Libraries:** Critical + Important (29 libraries)
 **Additional Libraries:**
 - All crypto/SSL libraries
 - All Kerberos libraries
@@ -455,7 +455,7 @@ libstdc++.so.6
 
 ### Data Processing Workflow
 **Utilities:** bash, jq, python3, grep, awk, sed  
-**Required Libraries:** Critical + Important (25 libraries)
+**Required Libraries:** Critical + Important (29 libraries)
 **Use Cases:**
 - JSON data manipulation
 - CSV processing
@@ -464,7 +464,7 @@ libstdc++.so.6
 
 ### Development Workflow
 **Utilities:** bash, git, node, python3, jq, curl  
-**Required Libraries:** Critical + Important (25 libraries)
+**Required Libraries:** Critical + Important (29 libraries)
 **Use Cases:**
 - Full development environment
 - Build processes
@@ -481,11 +481,11 @@ For detailed information about each library's purpose, size, and security consid
 - Always required for basic container operation
 - See: [Critical Libraries](./agent-container-system-libraries.md#critical-libraries-container-wont-function)
 
-**Important Libraries (15):**
+**Important Libraries (19):**
 - Required for networking, security, and common utilities
 - See: [Important Libraries](./agent-container-system-libraries.md#important-libraries-common-utilities-need)
 
-**Optional Libraries (21):**
+**Optional Libraries (18):**
 - Specialized protocols and functionality
 - See: [Optional Libraries](./agent-container-system-libraries.md#optional-libraries-specialized-use-cases)
 
