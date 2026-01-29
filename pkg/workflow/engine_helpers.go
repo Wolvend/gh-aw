@@ -441,3 +441,79 @@ func GetToolBinsEnvArg() []string {
 	// Pre-wrap in double quotes so shellEscapeArg preserves them (allowing shell expansion)
 	return []string{"--env", "\"GH_AW_TOOL_BINS=$GH_AW_TOOL_BINS\""}
 }
+
+// GenerateLibraryMountArgsCommand generates a shell command that uses detect-library-deps.sh
+// to dynamically generate AWF mount arguments for library dependencies.
+//
+// This function returns a shell command that:
+// 1. Runs detect-library-deps.sh with the list of binaries
+// 2. Outputs AWF mount arguments (--mount /path/to/lib:/path/to/lib:ro)
+// 3. Can be used in command substitution to add library mounts dynamically
+//
+// Parameters:
+//   - binaries: List of binary paths to analyze (e.g., []string{"/usr/bin/curl", "/usr/bin/jq"})
+//
+// Returns:
+//   - string: Shell command that outputs space-separated --mount arguments
+//
+// Example output:
+//   /opt/gh-aw/scripts/detect-library-deps.sh --cache-file=/tmp/gh-aw-lib-deps-cache.txt --format=awf-mounts /usr/bin/curl /usr/bin/jq 2>/dev/null || echo ''
+//
+// Usage in AWF command:
+//   LIB_MOUNTS="$(generate_library_mount_args_command)"
+//   sudo -E awf $awfArgs $LIB_MOUNTS -- command...
+func GenerateLibraryMountArgsCommand(binaries []string) string {
+	if len(binaries) == 0 {
+		return "echo ''"
+	}
+
+	engineHelpersLog.Printf("Generating library mount command for %d binaries", len(binaries))
+
+	// Build the shell command
+	var cmd strings.Builder
+	cmd.WriteString("/opt/gh-aw/scripts/detect-library-deps.sh")
+	cmd.WriteString(" --cache-file=/tmp/gh-aw-lib-deps-cache.txt")
+	cmd.WriteString(" --format=awf-mounts")
+
+	// Add each binary as an argument
+	for _, binary := range binaries {
+		cmd.WriteString(" ")
+		// Escape the binary path for shell safety
+		cmd.WriteString(shellEscapeArg(binary))
+	}
+
+	// Add error handling: if script fails, return empty string
+	cmd.WriteString(" 2>/dev/null || echo ''")
+
+	return cmd.String()
+}
+
+// GetCommonBinaryPaths returns the list of common utility binaries that are mounted in AWF containers.
+// This list is used to detect library dependencies for these binaries.
+//
+// Returns:
+//   - []string: List of binary paths commonly mounted (e.g., ["/usr/bin/curl", "/usr/bin/jq", ...])
+func GetCommonBinaryPaths() []string {
+	return []string{
+		"/usr/bin/cat",
+		"/usr/bin/curl",
+		"/usr/bin/date",
+		"/usr/bin/find",
+		"/usr/bin/gh",
+		"/usr/bin/grep",
+		"/usr/bin/jq",
+		"/usr/bin/yq",
+		"/usr/bin/cp",
+		"/usr/bin/cut",
+		"/usr/bin/diff",
+		"/usr/bin/head",
+		"/usr/bin/ls",
+		"/usr/bin/mkdir",
+		"/usr/bin/rm",
+		"/usr/bin/sed",
+		"/usr/bin/sort",
+		"/usr/bin/tail",
+		"/usr/bin/wc",
+		"/usr/bin/which",
+	}
+}

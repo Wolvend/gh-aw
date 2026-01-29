@@ -314,6 +314,16 @@ func (e *CopilotEngine) GetExecutionSteps(workflowData *WorkflowData, logFile st
 		awfArgs = append(awfArgs, "--mount", "/home/runner/.copilot:/home/runner/.copilot:rw")
 		copilotExecLog.Print("Added host binaries, copilot binary, and .copilot config directory mounts to AWF container")
 
+		// Dynamically detect and mount library dependencies for binaries
+		// This uses the detect-library-deps.sh script to find required libraries via ldd
+		// Mounting only required libraries (instead of entire /lib directories) reduces
+		// container size and security surface while ensuring binaries work correctly
+		binaryPaths := GetCommonBinaryPaths()
+		// Also include the copilot binary
+		binaryPaths = append(binaryPaths, "/usr/local/bin/copilot")
+		libMountCmd := GenerateLibraryMountArgsCommand(binaryPaths)
+		copilotExecLog.Printf("Generated library detection command for %d binaries", len(binaryPaths))
+
 		// Mount the hostedtoolcache directory (where actions/setup-* installs tools like Go, Node, Python, etc.)
 		// The PATH is already passed via --env-all, so tools installed by setup actions are accessible
 		awfArgs = append(awfArgs, "--mount", "/opt/hostedtoolcache:/opt/hostedtoolcache:ro")
@@ -415,9 +425,11 @@ func (e *CopilotEngine) GetExecutionSteps(workflowData *WorkflowData, logFile st
 		command = fmt.Sprintf(`set -o pipefail
 %s
 mkdir -p "$HOME/.cache"
-%s %s \
+# Detect library dependencies for mounted binaries
+LIB_MOUNTS="$(%s)"
+%s %s $LIB_MOUNTS \
   -- %s \
-  2>&1 | tee %s`, toolBinsSetup, awfCommand, shellJoinArgs(awfArgs), escapedCommand, shellEscapeArg(logFile))
+  2>&1 | tee %s`, toolBinsSetup, libMountCmd, awfCommand, shellJoinArgs(awfArgs), escapedCommand, shellEscapeArg(logFile))
 	} else {
 		// Run copilot command without AWF wrapper
 		command = fmt.Sprintf(`set -o pipefail

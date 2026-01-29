@@ -225,6 +225,14 @@ func (e *CodexEngine) GetExecutionSteps(workflowData *WorkflowData, logFile stri
 		awfArgs = append(awfArgs, "--mount", "\"${GITHUB_WORKSPACE}:${GITHUB_WORKSPACE}:rw\"")
 		codexEngineLog.Print("Added workspace mount to AWF")
 
+		// Dynamically detect and mount library dependencies for binaries
+		// This uses the detect-library-deps.sh script to find required libraries via ldd
+		// Mounting only required libraries (instead of entire /lib directories) reduces
+		// container size and security surface while ensuring binaries work correctly
+		binaryPaths := GetCommonBinaryPaths()
+		libMountCmd := GenerateLibraryMountArgsCommand(binaryPaths)
+		codexEngineLog.Printf("Generated library detection command for %d binaries", len(binaryPaths))
+
 		// Mount the hostedtoolcache directory (where actions/setup-* installs tools like Go, Node, Python, etc.)
 		// The PATH is already passed via --env-all, so tools installed by setup actions are accessible
 		awfArgs = append(awfArgs, "--mount", "/opt/hostedtoolcache:/opt/hostedtoolcache:ro")
@@ -319,18 +327,22 @@ mkdir -p "$HOME/.cache"
 AGENT_CONTENT="$(awk 'BEGIN{skip=1} /^---$/{if(skip){skip=0;next}else{skip=1;next}} !skip' %s)"
 INSTRUCTION="$(printf "%%s\n\n%%s" "$AGENT_CONTENT" "$(cat "$GH_AW_PROMPT")")"
 mkdir -p "$CODEX_HOME/logs"
-%s %s \
+# Detect library dependencies for mounted binaries
+LIB_MOUNTS="$(%s)"
+%s %s $LIB_MOUNTS \
   -- %s \
-  2>&1 | tee %s`, toolBinsSetup, agentPath, awfCommand, shellJoinArgs(awfArgs), codexCommandWithPath, shellEscapeArg(logFile))
+  2>&1 | tee %s`, toolBinsSetup, agentPath, libMountCmd, awfCommand, shellJoinArgs(awfArgs), codexCommandWithPath, shellEscapeArg(logFile))
 		} else {
 			command = fmt.Sprintf(`set -o pipefail
 %s
 mkdir -p "$HOME/.cache"
 INSTRUCTION="$(cat "$GH_AW_PROMPT")"
 mkdir -p "$CODEX_HOME/logs"
-%s %s \
+# Detect library dependencies for mounted binaries
+LIB_MOUNTS="$(%s)"
+%s %s $LIB_MOUNTS \
   -- %s \
-  2>&1 | tee %s`, toolBinsSetup, awfCommand, shellJoinArgs(awfArgs), codexCommandWithPath, shellEscapeArg(logFile))
+  2>&1 | tee %s`, toolBinsSetup, libMountCmd, awfCommand, shellJoinArgs(awfArgs), codexCommandWithPath, shellEscapeArg(logFile))
 		}
 	} else {
 		// Build the command without AWF wrapping
