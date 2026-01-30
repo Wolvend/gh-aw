@@ -74,8 +74,11 @@ This should inherit the engine from the included file.
 	lockStr := string(lockContent)
 
 	// Should contain references to codex installation and execution
-	if !strings.Contains(lockStr, "Install Codex") {
-		t.Error("Expected lock file to contain 'Install Codex' step")
+	// Check for either sequential "Install Codex" or parallel installation step
+	hasCodexInstall := strings.Contains(lockStr, "Install Codex") ||
+		(strings.Contains(lockStr, "Install dependencies in parallel") && strings.Contains(lockStr, "--cli-npm @openai/codex"))
+	if !hasCodexInstall {
+		t.Error("Expected lock file to contain Codex installation step (sequential or parallel)")
 	}
 	if !strings.Contains(lockStr, "codex") || !strings.Contains(lockStr, "exec") {
 		t.Error("Expected lock file to contain 'codex exec' command")
@@ -299,12 +302,15 @@ This workflow specifies claude engine directly without any includes.
 	}
 	lockStr := string(lockContent)
 
-	// Should contain references to claude command and npm install
+	// Should contain references to claude command and installation
 	if !strings.Contains(lockStr, "claude --print") {
 		t.Error("Expected lock file to contain claude command reference")
 	}
-	if !strings.Contains(lockStr, "npm install -g --silent @anthropic-ai/claude-code") {
-		t.Error("Expected lock file to contain npm install command")
+	// Check for either sequential npm install or parallel installation
+	hasClaudeInstall := strings.Contains(lockStr, "npm install -g --silent @anthropic-ai/claude-code") ||
+		(strings.Contains(lockStr, "Install dependencies in parallel") && strings.Contains(lockStr, "--cli-npm @anthropic-ai/claude-code"))
+	if !hasClaudeInstall {
+		t.Error("Expected lock file to contain Claude installation (sequential or parallel)")
 	}
 }
 

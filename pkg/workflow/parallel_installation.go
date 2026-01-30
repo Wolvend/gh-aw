@@ -123,9 +123,8 @@ func generateParallelInstallationStep(config ParallelInstallConfig) GitHubAction
 
 // ShouldUseParallelInstallation determines if parallel installation should be used
 // based on the workflow configuration. Parallel installation is used when:
-// - AWF binary needs to be installed (firewall enabled)
-// - CLI needs to be installed (Copilot, Claude, or Codex)
-// - Docker images need to be downloaded
+// - Multiple independent network-bound operations need to run (AWF + CLI + Docker)
+// - At minimum, need 2 or more operations to justify parallelization overhead
 // - SRT is NOT enabled (SRT has sequential dependencies)
 func ShouldUseParallelInstallation(workflowData *WorkflowData, engine CodingAgentEngine) bool {
 	// Don't use parallel installation if custom command is specified
@@ -138,23 +137,29 @@ func ShouldUseParallelInstallation(workflowData *WorkflowData, engine CodingAgen
 		return false
 	}
 
-	// Use parallel installation if firewall is enabled (AWF binary needed)
-	// and we're installing a CLI (Copilot, Claude, or Codex)
+	// Count how many independent operations we have
+	operationCount := 0
+
+	// AWF binary installation
 	if isFirewallEnabled(workflowData) {
-		engineID := engine.GetID()
-		if engineID == "copilot" || engineID == "claude" || engineID == "codex" {
-			return true
-		}
+		operationCount++
 	}
 
-	// Also use parallel if we have Docker images to download
-	dockerImages := collectDockerImages(workflowData.Tools, workflowData)
+	// CLI installation (for supported engines)
 	engineID := engine.GetID()
-	if len(dockerImages) > 0 && (isFirewallEnabled(workflowData) || engineID == "copilot" || engineID == "claude" || engineID == "codex") {
-		return true
+	if engineID == "copilot" || engineID == "claude" || engineID == "codex" {
+		operationCount++
 	}
 
-	return false
+	// Docker image downloads
+	dockerImages := collectDockerImages(workflowData.Tools, workflowData)
+	if len(dockerImages) > 0 {
+		operationCount++
+	}
+
+	// Use parallel installation only if we have 2 or more operations
+	// Single operation doesn't benefit from parallelization overhead
+	return operationCount >= 2
 }
 
 // GetParallelInstallConfig extracts the parallel installation configuration

@@ -240,9 +240,11 @@ sandbox:
 			t.Error("Expected standard AWF command 'sudo -E awf' with legacy type field")
 		}
 
-		// Verify installation step is present
-		if !strings.Contains(lockStr, "Install awf binary") {
-			t.Error("Expected AWF installation step with legacy type field")
+		// Verify installation step is present (either individual or parallel)
+		hasAWFInstall := strings.Contains(lockStr, "Install awf binary") ||
+			(strings.Contains(lockStr, "Install dependencies in parallel") && strings.Contains(lockStr, "--awf"))
+		if !hasAWFInstall {
+			t.Error("Expected AWF installation step (sequential or parallel) with legacy type field")
 		}
 	})
 
