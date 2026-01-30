@@ -33,7 +33,7 @@
 #
 # frontmatter-hash: 285cbbb562d944232f7828a531c9a22c9a52b4fec78bcecfc655b026bb34564e
 
-name: "Smoke Claude"
+name: "AAA Smoke Claude"
 "on":
   pull_request:
     # names: # Label filtering applied via job conditions
