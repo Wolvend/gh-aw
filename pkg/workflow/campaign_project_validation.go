@@ -41,7 +41,10 @@ import (
 var campaignProjectValidationLog = logger.New("workflow:campaign_project_validation")
 
 // validateCampaignProject checks if a workflow with campaign characteristics has a project URL configured
-func (c *Compiler) validateCampaignProject(frontmatter map[string]any) error {
+// The project URL can be specified in two places with the following precedence:
+// 1. Frontmatter 'project' field (source of truth)
+// 2. Markdown body content (fallback)
+func (c *Compiler) validateCampaignProject(frontmatter map[string]any, markdownContent string) error {
 	campaignProjectValidationLog.Print("Checking campaign project requirements")
 
 	// Check if this workflow has campaign characteristics
@@ -53,33 +56,42 @@ func (c *Compiler) validateCampaignProject(frontmatter map[string]any) error {
 
 	campaignProjectValidationLog.Printf("Detected campaign workflow via %s", campaignSource)
 
-	// Check if project field exists
+	// Check if project field exists in frontmatter (source of truth)
 	projectData, hasProject := frontmatter["project"]
-	if !hasProject || projectData == nil {
-		return fmt.Errorf("campaign orchestrator requires a GitHub Project URL to track work items. Please add a 'project' field to the frontmatter with a valid GitHub Project URL (e.g., project: https://github.com/orgs/myorg/projects/123). Campaign detected via: %s", campaignSource)
+	if hasProject && projectData != nil {
+		campaignProjectValidationLog.Print("Project field found in frontmatter (source of truth)")
+		// Validate frontmatter project field is not empty
+		switch v := projectData.(type) {
+		case string:
+			if strings.TrimSpace(v) == "" {
+				return fmt.Errorf("campaign orchestrator requires a non-empty GitHub Project URL. Campaign detected via: %s", campaignSource)
+			}
+			campaignProjectValidationLog.Printf("Valid project URL found in frontmatter: %s", v)
+		case map[string]any:
+			// Check if object has a URL field
+			if url, hasURL := v["url"]; !hasURL || url == nil {
+				return fmt.Errorf("campaign orchestrator project configuration must include a 'url' field with a valid GitHub Project URL. Campaign detected via: %s", campaignSource)
+			} else if urlStr, ok := url.(string); !ok || strings.TrimSpace(urlStr) == "" {
+				return fmt.Errorf("campaign orchestrator project URL must be a non-empty string. Campaign detected via: %s", campaignSource)
+			}
+			campaignProjectValidationLog.Print("Valid project configuration object found in frontmatter")
+		default:
+			return fmt.Errorf("campaign orchestrator 'project' field must be a string URL or configuration object. Campaign detected via: %s", campaignSource)
+		}
+		campaignProjectValidationLog.Print("Campaign project validation passed (frontmatter)")
+		return nil
 	}
 
-	// Validate project field is not empty
-	switch v := projectData.(type) {
-	case string:
-		if strings.TrimSpace(v) == "" {
-			return fmt.Errorf("campaign orchestrator requires a non-empty GitHub Project URL. Campaign detected via: %s", campaignSource)
-		}
-		campaignProjectValidationLog.Printf("Valid project URL found: %s", v)
-	case map[string]any:
-		// Check if object has a URL field
-		if url, hasURL := v["url"]; !hasURL || url == nil {
-			return fmt.Errorf("campaign orchestrator project configuration must include a 'url' field with a valid GitHub Project URL. Campaign detected via: %s", campaignSource)
-		} else if urlStr, ok := url.(string); !ok || strings.TrimSpace(urlStr) == "" {
-			return fmt.Errorf("campaign orchestrator project URL must be a non-empty string. Campaign detected via: %s", campaignSource)
-		}
-		campaignProjectValidationLog.Print("Valid project configuration object found")
-	default:
-		return fmt.Errorf("campaign orchestrator 'project' field must be a string URL or configuration object. Campaign detected via: %s", campaignSource)
+	// Fallback: Look for project URL in markdown content
+	campaignProjectValidationLog.Print("No project field in frontmatter, checking markdown content for project URL")
+	if hasProjectURLInMarkdown(markdownContent) {
+		campaignProjectValidationLog.Print("Valid project URL found in markdown content (fallback)")
+		campaignProjectValidationLog.Print("Campaign project validation passed (markdown fallback)")
+		return nil
 	}
 
-	campaignProjectValidationLog.Print("Campaign project validation passed")
-	return nil
+	// No project URL found in either frontmatter or markdown
+	return fmt.Errorf("campaign orchestrator requires a GitHub Project URL to track work items. Please add a 'project' field to the frontmatter with a valid GitHub Project URL (e.g., project: https://github.com/orgs/myorg/projects/123), or include a project URL in the markdown body. Campaign detected via: %s", campaignSource)
 }
 
 // detectCampaignWorkflow checks if a workflow has campaign characteristics
@@ -96,6 +108,23 @@ func detectCampaignWorkflow(frontmatter map[string]any) (bool, string) {
 	}
 
 	return false, ""
+}
+
+// hasProjectURLInMarkdown checks if the markdown content contains a GitHub Project URL
+// This serves as a fallback when the project field is not in the frontmatter
+func hasProjectURLInMarkdown(markdownContent string) bool {
+	// Use a simple string search for performance
+	// Check for the distinctive pattern of GitHub Project URLs
+	// Matches: https://github.com/orgs/{org}/projects/{number}
+	// or: https://github.com/users/{user}/projects/{number}
+	if strings.Contains(markdownContent, "https://github.com/orgs/") && strings.Contains(markdownContent, "/projects/") {
+		return true
+	}
+	if strings.Contains(markdownContent, "https://github.com/users/") && strings.Contains(markdownContent, "/projects/") {
+		return true
+	}
+	
+	return false
 }
 
 // hasCampaignLabels checks if safe-outputs configuration includes campaign labels

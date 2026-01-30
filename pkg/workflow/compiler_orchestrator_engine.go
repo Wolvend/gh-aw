@@ -81,7 +81,7 @@ func (c *Compiler) setupEngineAndImports(result *parser.FrontmatterResult, clean
 
 	// Validate campaign orchestrator project requirements (applies to all workflows, not just strict mode)
 	orchestratorEngineLog.Print("Validating campaign orchestrator project requirements")
-	if err := c.validateCampaignProject(result.Frontmatter); err != nil {
+	if err := c.validateCampaignProject(result.Frontmatter, result.Markdown); err != nil {
 		orchestratorEngineLog.Printf("Campaign project validation failed: %v", err)
 		return nil, err
 	}

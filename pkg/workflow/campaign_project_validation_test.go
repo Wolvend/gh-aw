@@ -12,10 +12,11 @@ import (
 
 func TestValidateCampaignProject(t *testing.T) {
 	tests := []struct {
-		name        string
-		frontmatter map[string]any
-		expectError bool
-		errorMsg    string
+		name            string
+		frontmatter     map[string]any
+		markdownContent string
+		expectError     bool
+		errorMsg        string
 	}{
 		{
 			name: "campaign with agentic-campaign label and project URL - valid",
@@ -27,7 +28,8 @@ func TestValidateCampaignProject(t *testing.T) {
 				},
 				"project": "https://github.com/orgs/test/projects/123",
 			},
-			expectError: false,
+			markdownContent: "",
+			expectError:     false,
 		},
 		{
 			name: "campaign with z_campaign_ label and project URL - valid",
@@ -39,7 +41,8 @@ func TestValidateCampaignProject(t *testing.T) {
 				},
 				"project": "https://github.com/orgs/test/projects/456",
 			},
-			expectError: false,
+			markdownContent: "",
+			expectError:     false,
 		},
 		{
 			name: "campaign with campaign-id in repo-memory and project URL - valid",
@@ -51,7 +54,8 @@ func TestValidateCampaignProject(t *testing.T) {
 				},
 				"project": "https://github.com/orgs/test/projects/789",
 			},
-			expectError: false,
+			markdownContent: "",
+			expectError:     false,
 		},
 		{
 			name: "campaign with agentic-campaign label but no project - error",
@@ -62,8 +66,9 @@ func TestValidateCampaignProject(t *testing.T) {
 					},
 				},
 			},
-			expectError: true,
-			errorMsg:    "campaign orchestrator requires a GitHub Project URL",
+			markdownContent: "",
+			expectError:     true,
+			errorMsg:        "campaign orchestrator requires a GitHub Project URL",
 		},
 		{
 			name: "campaign with z_campaign_ label but empty project URL - error",
@@ -75,8 +80,9 @@ func TestValidateCampaignProject(t *testing.T) {
 				},
 				"project": "",
 			},
-			expectError: true,
-			errorMsg:    "requires a non-empty GitHub Project URL",
+			markdownContent: "",
+			expectError:     true,
+			errorMsg:        "requires a non-empty GitHub Project URL",
 		},
 		{
 			name: "campaign with campaign-id but nil project - error",
@@ -88,8 +94,9 @@ func TestValidateCampaignProject(t *testing.T) {
 				},
 				"project": nil,
 			},
-			expectError: true,
-			errorMsg:    "campaign orchestrator requires a GitHub Project URL",
+			markdownContent: "",
+			expectError:     true,
+			errorMsg:        "campaign orchestrator requires a GitHub Project URL",
 		},
 		{
 			name: "campaign with project config object - valid",
@@ -104,7 +111,8 @@ func TestValidateCampaignProject(t *testing.T) {
 					"max-updates": 100,
 				},
 			},
-			expectError: false,
+			markdownContent: "",
+			expectError:     false,
 		},
 		{
 			name: "campaign with project config but missing URL - error",
@@ -120,8 +128,9 @@ func TestValidateCampaignProject(t *testing.T) {
 					"max-updates": 100,
 				},
 			},
-			expectError: true,
-			errorMsg:    "project configuration must include a 'url' field",
+			markdownContent: "",
+			expectError:     true,
+			errorMsg:        "project configuration must include a 'url' field",
 		},
 		{
 			name: "non-campaign workflow without project - valid",
@@ -132,7 +141,8 @@ func TestValidateCampaignProject(t *testing.T) {
 					},
 				},
 			},
-			expectError: false,
+			markdownContent: "",
+			expectError:     false,
 		},
 		{
 			name: "workflow with regular labels - valid",
@@ -143,7 +153,8 @@ func TestValidateCampaignProject(t *testing.T) {
 					},
 				},
 			},
-			expectError: false,
+			markdownContent: "",
+			expectError:     false,
 		},
 		{
 			name: "campaign with multiple repo-memory entries - valid",
@@ -160,7 +171,8 @@ func TestValidateCampaignProject(t *testing.T) {
 				},
 				"project": "https://github.com/orgs/test/projects/999",
 			},
-			expectError: false,
+			markdownContent: "",
+			expectError:     false,
 		},
 		{
 			name: "campaign via create-discussion labels - valid",
@@ -172,14 +184,65 @@ func TestValidateCampaignProject(t *testing.T) {
 				},
 				"project": "https://github.com/orgs/test/projects/111",
 			},
-			expectError: false,
+			markdownContent: "",
+			expectError:     false,
+		},
+		{
+			name: "campaign with project URL in markdown (orgs) - valid fallback",
+			frontmatter: map[string]any{
+				"safe-outputs": map[string]any{
+					"add-labels": map[string]any{
+						"allowed": []any{"agentic-campaign"},
+					},
+				},
+			},
+			markdownContent: "Track progress at https://github.com/orgs/myorg/projects/144",
+			expectError:     false,
+		},
+		{
+			name: "campaign with project URL in markdown (users) - valid fallback",
+			frontmatter: map[string]any{
+				"tools": map[string]any{
+					"repo-memory": map[string]any{
+						"campaign-id": "test",
+					},
+				},
+			},
+			markdownContent: "See https://github.com/users/myuser/projects/42 for details",
+			expectError:     false,
+		},
+		{
+			name: "campaign with frontmatter project (source of truth) even if markdown has URL",
+			frontmatter: map[string]any{
+				"safe-outputs": map[string]any{
+					"add-labels": map[string]any{
+						"allowed": []any{"agentic-campaign"},
+					},
+				},
+				"project": "https://github.com/orgs/correct/projects/1",
+			},
+			markdownContent: "Old URL: https://github.com/orgs/wrong/projects/999",
+			expectError:     false,
+		},
+		{
+			name: "campaign without project in frontmatter or markdown - error",
+			frontmatter: map[string]any{
+				"safe-outputs": map[string]any{
+					"add-labels": map[string]any{
+						"allowed": []any{"agentic-campaign"},
+					},
+				},
+			},
+			markdownContent: "No project URL here",
+			expectError:     true,
+			errorMsg:        "campaign orchestrator requires a GitHub Project URL",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			compiler := NewCompiler()
-			err := compiler.validateCampaignProject(tt.frontmatter)
+			err := compiler.validateCampaignProject(tt.frontmatter, tt.markdownContent)
 
 			if tt.expectError {
 				require.Error(t, err, "Expected error but got none")
@@ -187,6 +250,57 @@ func TestValidateCampaignProject(t *testing.T) {
 			} else {
 				assert.NoError(t, err, "Expected no error but got: %v", err)
 			}
+		})
+	}
+}
+
+func TestHasProjectURLInMarkdown(t *testing.T) {
+	tests := []struct {
+		name     string
+		markdown string
+		expected bool
+	}{
+		{
+			name:     "project URL with orgs",
+			markdown: "Track at https://github.com/orgs/myorg/projects/123",
+			expected: true,
+		},
+		{
+			name:     "project URL with users",
+			markdown: "See https://github.com/users/john/projects/42",
+			expected: true,
+		},
+		{
+			name:     "no project URL",
+			markdown: "This is a regular workflow without project tracking",
+			expected: false,
+		},
+		{
+			name:     "github URL but not a project",
+			markdown: "See https://github.com/owner/repo",
+			expected: false,
+		},
+		{
+			name:     "partial match - has orgs but no projects",
+			markdown: "Visit https://github.com/orgs/myorg for more info",
+			expected: false,
+		},
+		{
+			name:     "partial match - has projects but no orgs",
+			markdown: "Check out our projects folder",
+			expected: false,
+		},
+		{
+			name:     "multiple project URLs",
+			markdown: "Old: https://github.com/orgs/old/projects/1\nNew: https://github.com/orgs/new/projects/2",
+			expected: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := hasProjectURLInMarkdown(tt.markdown)
+			assert.Equal(t, tt.expected, result, "Expected %v for markdown: %s", tt.expected, tt.markdown)
 		})
 	}
 }
@@ -487,13 +601,13 @@ func TestCampaignValidationIntegration(t *testing.T) {
 	}
 
 	compiler := NewCompiler()
-	err := compiler.validateCampaignProject(frontmatter)
+	err := compiler.validateCampaignProject(frontmatter, "")
 	require.Error(t, err, "Should fail validation without project URL")
 	assert.Contains(t, err.Error(), "campaign orchestrator requires a GitHub Project URL")
 
 	// Add project URL and verify it passes
 	frontmatter["project"] = "https://github.com/orgs/test/projects/144"
-	err = compiler.validateCampaignProject(frontmatter)
+	err = compiler.validateCampaignProject(frontmatter, "")
 	assert.NoError(t, err, "Should pass validation with project URL")
 }
 
@@ -538,7 +652,7 @@ func TestCampaignValidationErrorMessages(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			compiler := NewCompiler()
-			err := compiler.validateCampaignProject(tt.frontmatter)
+			err := compiler.validateCampaignProject(tt.frontmatter, "")
 			require.Error(t, err, "Should fail validation")
 
 			errMsg := err.Error()
