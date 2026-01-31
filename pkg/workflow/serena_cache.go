@@ -36,7 +36,7 @@ func isSerenaEnabled(data *WorkflowData) bool {
 // The cache is configured to:
 // - Use path: .serena/cache
 // - Ignore if the folder doesn't exist (continue-on-error: true)
-// - Expire in 7 days
+// - Expire in 7 days (GitHub Actions default cache retention policy)
 // - Use "last cache wins" strategy (save-always: true)
 func (c *Compiler) generateSerenaCacheStep(yaml *strings.Builder, data *WorkflowData, needsCheckout bool) {
 	// Only add cache if Serena is enabled and checkout was performed
