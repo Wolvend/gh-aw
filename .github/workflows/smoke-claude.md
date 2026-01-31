@@ -19,6 +19,7 @@ engine:
   max-turns: 15
 strict: true
 imports:
+  - github/github-deep-research-agent@main
   - shared/mcp-pagination.md
   - shared/gh.md
   - shared/mcp/tavily.md

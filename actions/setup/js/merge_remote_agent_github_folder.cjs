@@ -167,6 +167,7 @@ function sparseCheckoutGithubFolder(owner, repo, ref, tempDir) {
 
 /**
  * Merge .github folder from source to destination, failing on conflicts
+ * Only copies files from specific subfolders: agents, skills, prompts, instructions, plugins
  * @param {string} sourcePath - Source .github folder path
  * @param {string} destPath - Destination .github folder path
  * @returns {{merged: number, conflicts: string[]}}
@@ -177,11 +178,23 @@ function mergeGithubFolder(sourcePath, destPath) {
   const conflicts = [];
   let mergedCount = 0;
 
+  // Only copy files from these specific subfolders
+  const allowedSubfolders = ["agents", "skills", "prompts", "instructions", "plugins"];
+
   // Get all files from source .github folder
   const sourceFiles = getAllFiles(sourcePath);
   coreObj.info(`Found ${sourceFiles.length} files in source .github folder`);
 
   for (const relativePath of sourceFiles) {
+    // Check if the file is in one of the allowed subfolders
+    const pathParts = relativePath.split(path.sep);
+    const topLevelFolder = pathParts[0];
+
+    if (!allowedSubfolders.includes(topLevelFolder)) {
+      coreObj.info(`Skipping file outside allowed subfolders: ${relativePath}`);
+      continue;
+    }
+
     const sourceFile = path.join(sourcePath, relativePath);
     const destFile = path.join(destPath, relativePath);
 
