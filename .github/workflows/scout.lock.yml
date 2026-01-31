@@ -188,7 +188,7 @@ jobs:
         with:
           repository: github/github-deep-research-agent
           ref: main
-          path: /tmp/gh-aw/repo-imports/github-github-deep-research-agent-main
+          path: tmp/gh-aw/repo-imports/github-github-deep-research-agent-main
           sparse-checkout: |
             .github/
           persist-credentials: false
