@@ -19,15 +19,15 @@
 #   gh aw compile
 # For more information: https://github.com/githubnext/gh-aw/blob/main/.github/aw/github-agentic-workflows.md
 #
-# Identifies opportunities to apply moderate functional programming techniques systematically - immutability, functional options, pure functions, and reusable logic wrappers
+# Identifies opportunities to apply moderate functional programming techniques systematically - immutability, functional options, pure functions, reducing mutation and reusable logic wrappers
 #
 # Resolved workflow manifest:
 #   Imports:
 #     - shared/reporting.md
 #
-# frontmatter-hash: bd40f012f25775f1722e8a35296eaf3c1607a6d7ece0fd71a8809b93bb5c2814
+# frontmatter-hash: a3a882e5b432319e495ef33cf6b175688127dabd81d90624999492b6100b7384
 
-name: "Functional Programming Enhancer"
+name: "Functional Enhancer"
 "on":
   schedule:
   - cron: "0 9 * * 2,4"
@@ -38,7 +38,7 @@ permissions: {}
 concurrency:
   group: "gh-aw-${{ github.workflow }}"
 
-run-name: "Functional Programming Enhancer"
+run-name: "Functional Enhancer"
 
 jobs:
   activation:
@@ -173,7 +173,7 @@ jobs:
           cat > /opt/gh-aw/safeoutputs/tools.json << 'EOF'
           [
             {
-              "description": "Create a new GitHub pull request to propose code changes. Use this after making file edits to submit them for review and merging. The PR will be created from the current branch with your committed changes. For code review comments on an existing PR, use create_pull_request_review_comment instead. CONSTRAINTS: Maximum 1 pull request(s) can be created. Title will be prefixed with \"[fp-enhancer] \". Labels [refactoring functional-programming code-quality] will be automatically added. Reviewers [copilot] will be assigned.",
+              "description": "Create a new GitHub pull request to propose code changes. Use this after making file edits to submit them for review and merging. The PR will be created from the current branch with your committed changes. For code review comments on an existing PR, use create_pull_request_review_comment instead. CONSTRAINTS: Maximum 1 pull request(s) can be created. Title will be prefixed with \"[fp-enhancer] \". Labels [refactoring functional immutability code-quality] will be automatically added. Reviewers [copilot] will be assigned.",
               "inputSchema": {
                 "additionalProperties": false,
                 "properties": {
@@ -420,22 +420,6 @@ jobs:
                 "headers": {
                   "Authorization": "$GH_AW_SAFE_OUTPUTS_API_KEY"
                 }
-              },
-              "serena": {
-                "container": "ghcr.io/githubnext/serena-mcp-server:latest",
-                "args": [
-                  "--network",
-                  "host"
-                ],
-                "entrypoint": "serena",
-                "entrypointArgs": [
-                  "start-mcp-server",
-                  "--context",
-                  "codex",
-                  "--project",
-                  "${{ github.workspace }}"
-                ],
-                "mounts": ["${{ github.workspace }}:${{ github.workspace }}:rw"]
               }
             },
             "gateway": {
@@ -458,7 +442,7 @@ jobs:
               model: process.env.GH_AW_MODEL_AGENT_CLAUDE || "",
               version: "",
               agent_version: "2.1.27",
-              workflow_name: "Functional Programming Enhancer",
+              workflow_name: "Functional Enhancer",
               experimental: false,
               supports_tools_allowlist: true,
               supports_http_transport: true,
@@ -956,8 +940,8 @@ jobs:
         env:
           GH_AW_AGENT_OUTPUT: ${{ env.GH_AW_AGENT_OUTPUT }}
           GH_AW_NOOP_MAX: 1
-          GH_AW_WORKFLOW_NAME: "Functional Programming Enhancer"
-          GH_AW_TRACKER_ID: "functional-programming-enhancer"
+          GH_AW_WORKFLOW_NAME: "Functional Enhancer"
+          GH_AW_TRACKER_ID: "functional-enhancer"
         with:
           github-token: ${{ secrets.GH_AW_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
@@ -970,8 +954,8 @@ jobs:
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         env:
           GH_AW_AGENT_OUTPUT: ${{ env.GH_AW_AGENT_OUTPUT }}
-          GH_AW_WORKFLOW_NAME: "Functional Programming Enhancer"
-          GH_AW_TRACKER_ID: "functional-programming-enhancer"
+          GH_AW_WORKFLOW_NAME: "Functional Enhancer"
+          GH_AW_TRACKER_ID: "functional-enhancer"
         with:
           github-token: ${{ secrets.GH_AW_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
@@ -984,8 +968,8 @@ jobs:
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         env:
           GH_AW_AGENT_OUTPUT: ${{ env.GH_AW_AGENT_OUTPUT }}
-          GH_AW_WORKFLOW_NAME: "Functional Programming Enhancer"
-          GH_AW_TRACKER_ID: "functional-programming-enhancer"
+          GH_AW_WORKFLOW_NAME: "Functional Enhancer"
+          GH_AW_TRACKER_ID: "functional-enhancer"
           GH_AW_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           GH_AW_AGENT_CONCLUSION: ${{ needs.agent.result }}
           GH_AW_SECRET_VERIFICATION_RESULT: ${{ needs.agent.outputs.secret_verification_result }}
@@ -1001,8 +985,8 @@ jobs:
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         env:
           GH_AW_AGENT_OUTPUT: ${{ env.GH_AW_AGENT_OUTPUT }}
-          GH_AW_WORKFLOW_NAME: "Functional Programming Enhancer"
-          GH_AW_TRACKER_ID: "functional-programming-enhancer"
+          GH_AW_WORKFLOW_NAME: "Functional Enhancer"
+          GH_AW_TRACKER_ID: "functional-enhancer"
           GH_AW_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         with:
           github-token: ${{ secrets.GH_AW_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
@@ -1019,8 +1003,8 @@ jobs:
           GH_AW_COMMENT_ID: ${{ needs.activation.outputs.comment_id }}
           GH_AW_COMMENT_REPO: ${{ needs.activation.outputs.comment_repo }}
           GH_AW_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          GH_AW_WORKFLOW_NAME: "Functional Programming Enhancer"
-          GH_AW_TRACKER_ID: "functional-programming-enhancer"
+          GH_AW_WORKFLOW_NAME: "Functional Enhancer"
+          GH_AW_TRACKER_ID: "functional-enhancer"
           GH_AW_AGENT_CONCLUSION: ${{ needs.agent.result }}
           GH_AW_DETECTION_CONCLUSION: ${{ needs.detection.result }}
         with:
@@ -1072,8 +1056,8 @@ jobs:
       - name: Setup threat detection
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         env:
-          WORKFLOW_NAME: "Functional Programming Enhancer"
-          WORKFLOW_DESCRIPTION: "Identifies opportunities to apply moderate functional programming techniques systematically - immutability, functional options, pure functions, and reusable logic wrappers"
+          WORKFLOW_NAME: "Functional Enhancer"
+          WORKFLOW_DESCRIPTION: "Identifies opportunities to apply moderate functional programming techniques systematically - immutability, functional options, pure functions, reducing mutation and reusable logic wrappers"
           HAS_PATCH: ${{ needs.agent.outputs.has_patch }}
         with:
           script: |
@@ -1209,9 +1193,9 @@ jobs:
     timeout-minutes: 15
     env:
       GH_AW_ENGINE_ID: "claude"
-      GH_AW_TRACKER_ID: "functional-programming-enhancer"
+      GH_AW_TRACKER_ID: "functional-enhancer"
       GH_AW_WORKFLOW_ID: "functional-programming-enhancer"
-      GH_AW_WORKFLOW_NAME: "Functional Programming Enhancer"
+      GH_AW_WORKFLOW_NAME: "Functional Enhancer"
     outputs:
       process_safe_outputs_processed_count: ${{ steps.process_safe_outputs.outputs.processed_count }}
       process_safe_outputs_temporary_id_map: ${{ steps.process_safe_outputs.outputs.temporary_id_map }}
@@ -1268,7 +1252,7 @@ jobs:
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         env:
           GH_AW_AGENT_OUTPUT: ${{ env.GH_AW_AGENT_OUTPUT }}
-          GH_AW_SAFE_OUTPUTS_HANDLER_CONFIG: "{\"create_pull_request\":{\"base_branch\":\"${{ github.ref_name }}\",\"expires\":168,\"labels\":[\"refactoring\",\"functional-programming\",\"code-quality\"],\"max\":1,\"max_patch_size\":1024,\"title_prefix\":\"[fp-enhancer] \"},\"missing_data\":{},\"missing_tool\":{},\"noop\":{\"max\":1}}"
+          GH_AW_SAFE_OUTPUTS_HANDLER_CONFIG: "{\"create_pull_request\":{\"base_branch\":\"${{ github.ref_name }}\",\"expires\":168,\"labels\":[\"refactoring\",\"functional\",\"immutability\",\"code-quality\"],\"max\":1,\"max_patch_size\":1024,\"title_prefix\":\"[fp-enhancer] \"},\"missing_data\":{},\"missing_tool\":{},\"noop\":{\"max\":1}}"
         with:
           github-token: ${{ secrets.GH_AW_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
