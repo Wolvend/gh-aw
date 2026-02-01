@@ -691,11 +691,11 @@ func TestScriptNameVsInlineScript(t *testing.T) {
 // are only added for the correct project operation types
 func TestProjectHandlerEnvironmentVariables(t *testing.T) {
 	tests := []struct {
-		name             string
-		safeOutputs      *SafeOutputsConfig
+		name              string
+		safeOutputs       *SafeOutputsConfig
 		parsedFrontmatter *FrontmatterConfig
-		checkContains    []string
-		checkNotContains []string
+		checkContains     []string
+		checkNotContains  []string
 	}{
 		{
 			name: "update_project and create_project_status_update include GH_AW_PROJECT_URL",
