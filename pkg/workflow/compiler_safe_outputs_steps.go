@@ -239,26 +239,43 @@ func (c *Compiler) buildProjectHandlerManagerStep(data *WorkflowData) []string {
 	token := getEffectiveProjectGitHubToken(customToken, data.GitHubToken)
 	steps = append(steps, fmt.Sprintf("          GH_AW_PROJECT_GITHUB_TOKEN: %s\n", token))
 
-	// Add GH_AW_PROJECT_URL if project is configured in frontmatter or safe-outputs config
-	// This provides a default project URL for update-project and create-project-status-update operations
-	// when target=context (or target not specified). Users can override by setting target=* and
-	// providing an explicit project field in the safe output message.
+	// Add GH_AW_PROJECT_URL only for update-project and create-project-status-update operations
+	// This provides a default project URL for these operations when target=context (or target not specified).
+	// Users can override by setting target=* and providing an explicit project field in the safe output message.
 	//
 	// Precedence: frontmatter project > update-project.project > create-project-status-update.project
-	var projectURL string
-	if data.ParsedFrontmatter != nil && data.ParsedFrontmatter.Project != nil && data.ParsedFrontmatter.Project.URL != "" {
-		projectURL = data.ParsedFrontmatter.Project.URL
-		consolidatedSafeOutputsStepsLog.Printf("Using project URL from frontmatter: %s", projectURL)
-	} else if data.SafeOutputs.UpdateProjects != nil && data.SafeOutputs.UpdateProjects.Project != "" {
-		projectURL = data.SafeOutputs.UpdateProjects.Project
-		consolidatedSafeOutputsStepsLog.Printf("Using project URL from update-project config: %s", projectURL)
-	} else if data.SafeOutputs.CreateProjectStatusUpdates != nil && data.SafeOutputs.CreateProjectStatusUpdates.Project != "" {
-		projectURL = data.SafeOutputs.CreateProjectStatusUpdates.Project
-		consolidatedSafeOutputsStepsLog.Printf("Using project URL from create-project-status-update config: %s", projectURL)
+	//
+	// Note: copy_project and create_project do not use GH_AW_PROJECT_URL as they create/copy projects
+	// rather than update existing ones.
+	if data.SafeOutputs.UpdateProjects != nil || data.SafeOutputs.CreateProjectStatusUpdates != nil {
+		var projectURL string
+		if data.ParsedFrontmatter != nil && data.ParsedFrontmatter.Project != nil && data.ParsedFrontmatter.Project.URL != "" {
+			projectURL = data.ParsedFrontmatter.Project.URL
+			consolidatedSafeOutputsStepsLog.Printf("Using project URL from frontmatter: %s", projectURL)
+		} else if data.SafeOutputs.UpdateProjects != nil && data.SafeOutputs.UpdateProjects.Project != "" {
+			projectURL = data.SafeOutputs.UpdateProjects.Project
+			consolidatedSafeOutputsStepsLog.Printf("Using project URL from update-project config: %s", projectURL)
+		} else if data.SafeOutputs.CreateProjectStatusUpdates != nil && data.SafeOutputs.CreateProjectStatusUpdates.Project != "" {
+			projectURL = data.SafeOutputs.CreateProjectStatusUpdates.Project
+			consolidatedSafeOutputsStepsLog.Printf("Using project URL from create-project-status-update config: %s", projectURL)
+		}
+
+		if projectURL != "" {
+			steps = append(steps, fmt.Sprintf("          GH_AW_PROJECT_URL: %q\n", projectURL))
+		}
 	}
 
-	if projectURL != "" {
-		steps = append(steps, fmt.Sprintf("          GH_AW_PROJECT_URL: %q\n", projectURL))
+	// Add GH_AW_COPY_PROJECT_SOURCE and GH_AW_COPY_PROJECT_TARGET_OWNER only for copy-project operations
+	// These provide default values for source project and target owner when copying projects.
+	if data.SafeOutputs.CopyProjects != nil {
+		if data.SafeOutputs.CopyProjects.SourceProject != "" {
+			steps = append(steps, fmt.Sprintf("          GH_AW_COPY_PROJECT_SOURCE: %q\n", data.SafeOutputs.CopyProjects.SourceProject))
+			consolidatedSafeOutputsStepsLog.Printf("Adding copy-project source: %s", data.SafeOutputs.CopyProjects.SourceProject)
+		}
+		if data.SafeOutputs.CopyProjects.TargetOwner != "" {
+			steps = append(steps, fmt.Sprintf("          GH_AW_COPY_PROJECT_TARGET_OWNER: %q\n", data.SafeOutputs.CopyProjects.TargetOwner))
+			consolidatedSafeOutputsStepsLog.Printf("Adding copy-project target owner: %s", data.SafeOutputs.CopyProjects.TargetOwner)
+		}
 	}
 
 	// With section for github-token

@@ -686,3 +686,127 @@ func TestScriptNameVsInlineScript(t *testing.T) {
 		assert.NotContains(t, stepsContent, "console.log")
 	})
 }
+
+// TestProjectHandlerEnvironmentVariables tests that project-specific environment variables
+// are only added for the correct project operation types
+func TestProjectHandlerEnvironmentVariables(t *testing.T) {
+	tests := []struct {
+		name             string
+		safeOutputs      *SafeOutputsConfig
+		parsedFrontmatter *FrontmatterConfig
+		checkContains    []string
+		checkNotContains []string
+	}{
+		{
+			name: "update_project and create_project_status_update include GH_AW_PROJECT_URL",
+			safeOutputs: &SafeOutputsConfig{
+				UpdateProjects: &UpdateProjectConfig{
+					BaseSafeOutputConfig: BaseSafeOutputConfig{
+						Max: 5,
+					},
+					Project: "https://github.com/orgs/test-org/projects/456",
+				},
+				CreateProjectStatusUpdates: &CreateProjectStatusUpdateConfig{
+					BaseSafeOutputConfig: BaseSafeOutputConfig{
+						Max: 1,
+					},
+				},
+			},
+			checkContains: []string{
+				"GH_AW_PROJECT_URL: \"https://github.com/orgs/test-org/projects/456\"",
+			},
+			checkNotContains: []string{
+				"GH_AW_COPY_PROJECT_SOURCE",
+				"GH_AW_COPY_PROJECT_TARGET_OWNER",
+			},
+		},
+		{
+			name: "copy_project includes copy-specific env vars, not GH_AW_PROJECT_URL",
+			safeOutputs: &SafeOutputsConfig{
+				CopyProjects: &CopyProjectsConfig{
+					BaseSafeOutputConfig: BaseSafeOutputConfig{
+						Max: 1,
+					},
+					SourceProject: "https://github.com/orgs/source-org/projects/123",
+					TargetOwner:   "target-org",
+				},
+			},
+			checkContains: []string{
+				"GH_AW_COPY_PROJECT_SOURCE: \"https://github.com/orgs/source-org/projects/123\"",
+				"GH_AW_COPY_PROJECT_TARGET_OWNER: \"target-org\"",
+			},
+			checkNotContains: []string{
+				"GH_AW_PROJECT_URL",
+			},
+		},
+		{
+			name: "mixed project operations include correct env vars for each",
+			safeOutputs: &SafeOutputsConfig{
+				UpdateProjects: &UpdateProjectConfig{
+					BaseSafeOutputConfig: BaseSafeOutputConfig{
+						Max: 5,
+					},
+				},
+				CopyProjects: &CopyProjectsConfig{
+					BaseSafeOutputConfig: BaseSafeOutputConfig{
+						Max: 1,
+					},
+					SourceProject: "https://github.com/orgs/source-org/projects/123",
+					TargetOwner:   "target-org",
+				},
+			},
+			parsedFrontmatter: &FrontmatterConfig{
+				Project: &ProjectConfig{
+					URL: "https://github.com/orgs/test-org/projects/789",
+				},
+			},
+			checkContains: []string{
+				"GH_AW_PROJECT_URL: \"https://github.com/orgs/test-org/projects/789\"",
+				"GH_AW_COPY_PROJECT_SOURCE: \"https://github.com/orgs/source-org/projects/123\"",
+				"GH_AW_COPY_PROJECT_TARGET_OWNER: \"target-org\"",
+			},
+		},
+		{
+			name: "create_project does not include GH_AW_PROJECT_URL or copy env vars",
+			safeOutputs: &SafeOutputsConfig{
+				CreateProjects: &CreateProjectsConfig{
+					BaseSafeOutputConfig: BaseSafeOutputConfig{
+						Max: 1,
+					},
+					TargetOwner: "new-org",
+				},
+			},
+			checkNotContains: []string{
+				"GH_AW_PROJECT_URL",
+				"GH_AW_COPY_PROJECT_SOURCE",
+				"GH_AW_COPY_PROJECT_TARGET_OWNER",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			compiler := NewCompiler()
+
+			workflowData := &WorkflowData{
+				Name:              "Test Workflow",
+				SafeOutputs:       tt.safeOutputs,
+				ParsedFrontmatter: tt.parsedFrontmatter,
+			}
+
+			steps := compiler.buildProjectHandlerManagerStep(workflowData)
+
+			require.NotEmpty(t, steps)
+
+			stepsContent := strings.Join(steps, "")
+
+			for _, expected := range tt.checkContains {
+				assert.Contains(t, stepsContent, expected, "Expected to find: "+expected)
+			}
+
+			for _, notExpected := range tt.checkNotContains {
+				assert.NotContains(t, stepsContent, notExpected, "Should not contain: "+notExpected)
+			}
+		})
+	}
+}
