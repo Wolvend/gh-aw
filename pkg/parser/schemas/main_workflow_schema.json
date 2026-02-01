@@ -2397,8 +2397,8 @@
                 },
                 "payloadDir": {
                   "type": "string",
-                  "description": "Directory path for storing large response payloads. When MCP server responses exceed the size threshold, the gateway stores payloads in this directory segmented by session ID. The directory should be mounted as a shared volume between the gateway and agent containers. Default: '/tmp/jq-payloads'",
-                  "examples": ["/tmp/jq-payloads", "/custom/payload/dir"]
+                  "description": "Directory path for storing large response payloads. When MCP server responses exceed the size threshold, the gateway stores payloads in this directory segmented by session ID. The directory should be mounted as a shared volume between the gateway and agent containers. Default: '/tmp/gh-aw/res/'",
+                  "examples": ["/tmp/gh-aw/res/", "/custom/payload/dir"]
                 }
               },
               "required": ["container"],

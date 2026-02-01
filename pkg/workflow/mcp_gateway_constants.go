@@ -39,5 +39,5 @@ const (
 	// DefaultMCPGatewayPayloadDir is the default directory for large response payloads
 	// The gateway uses this directory to store payloads that exceed the size threshold
 	// This directory should be mounted as a shared volume between the gateway and agent containers
-	DefaultMCPGatewayPayloadDir = "/tmp/jq-payloads"
+	DefaultMCPGatewayPayloadDir = "/tmp/gh-aw/res/"
 )
