@@ -468,6 +468,15 @@ func (c *Compiler) generateMCPSetup(yaml *strings.Builder, tools map[string]any,
 		ensureDefaultMCPGatewayConfig(workflowData)
 		gatewayConfig := workflowData.SandboxConfig.MCP
 
+		// Create the payload directory for large response payloads
+		// This directory will be shared between the gateway and agent containers
+		payloadDir := gatewayConfig.PayloadDir
+		if payloadDir == "" {
+			payloadDir = DefaultMCPGatewayPayloadDir
+		}
+		yaml.WriteString("          mkdir -p " + payloadDir + "\n")
+		yaml.WriteString("          \n")
+
 		port := gatewayConfig.Port
 		if port == 0 {
 			port = int(DefaultMCPGatewayPort)

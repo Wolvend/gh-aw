@@ -531,3 +531,70 @@ Test that multiple secrets are passed to gateway container.
 	assert.Contains(t, yamlStr, "-e DD_APP_KEY",
 		"DD_APP_KEY should be passed to container")
 }
+
+func TestPayloadDirCreation(t *testing.T) {
+	tests := []struct {
+		name          string
+		sandboxConfig *SandboxConfig
+		expectedMkdir string
+		description   string
+	}{
+		{
+			name:          "default payloadDir",
+			sandboxConfig: nil, // Will use defaults
+			expectedMkdir: "mkdir -p /tmp/gh-aw/res/",
+			description:   "should create default payload directory",
+		},
+		{
+			name: "custom payloadDir",
+			sandboxConfig: &SandboxConfig{
+				MCP: &MCPGatewayRuntimeConfig{
+					Container:  constants.DefaultMCPGatewayContainer,
+					Version:    string(constants.DefaultMCPGatewayVersion),
+					Port:       8080,
+					PayloadDir: "/custom/payload/path",
+				},
+			},
+			expectedMkdir: "mkdir -p /custom/payload/path",
+			description:   "should create custom payload directory",
+		},
+		{
+			name: "empty payloadDir - should use default",
+			sandboxConfig: &SandboxConfig{
+				MCP: &MCPGatewayRuntimeConfig{
+					Container:  constants.DefaultMCPGatewayContainer,
+					Port:       8080,
+					PayloadDir: "",
+				},
+			},
+			expectedMkdir: "mkdir -p /tmp/gh-aw/res/",
+			description:   "should use default when payloadDir is empty",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var yaml strings.Builder
+			compiler := NewCompiler()
+
+			workflowData := &WorkflowData{
+				Name:          "test-workflow",
+				SandboxConfig: tt.sandboxConfig,
+				Tools: map[string]any{
+					"github": map[string]any{
+						"mode":     "remote",
+						"toolsets": []string{"default"},
+					},
+				},
+			}
+
+			ensureDefaultMCPGatewayConfig(workflowData)
+
+			engine := NewCopilotEngine()
+			compiler.generateMCPSetup(&yaml, workflowData.Tools, engine, workflowData)
+
+			yamlStr := yaml.String()
+			assert.Contains(t, yamlStr, tt.expectedMkdir, tt.description)
+		})
+	}
+}
