@@ -1,57 +1,120 @@
-# PR Triage Summary - February 2, 2026
+# PR Triage Report - February 02, 2026
 
-## Quick Stats
-- **7 PRs triaged** (3 new, 4 re-triaged)
-- **6 fast-track** (urgent review needed)
-- **1 deferred** (WIP, no code yet)
-- **0 auto-merge candidates**
+## Executive Summary
 
-## Top 3 Priorities
+- **Total PRs Triaged:** 16
+- **New PRs:** 13
+- **Re-triaged:** 3
+- **Auto-merge Candidates:** 0
+- **Fast-track Needed:** 0
+- **Batches Identified:** 0 (all recommended for batch review)
+- **Close Candidates:** 0
 
-### 🔥 #13174 - Hash Consistency Fix (Score: 75)
-- **Status:** ✅ READY FOR IMMEDIATE REVIEW
-- **Why:** Fixes Go/JS hash mismatch affecting all 148 workflows
-- **Action:** Merge ASAP once CI passes
+## Triage Statistics
 
-### 🔥 #13179 - dispatch_workflow Registration (Score: 72)
-- **Status:** 🚧 Draft, CI pending
-- **Why:** Critical safe outputs bug blocking workflow dispatch
-- **Action:** Fast-track review once ready
+### By Category
+- **Chore**: 14
+- **Bug**: 1
+- **Feature**: 1
 
-### 🔥 #12664 - MCP Config No-Firewall (Score: 68)
-- **Status:** ✅ READY FOR REVIEW
-- **Why:** MCP doesn't work with firewall disabled
-- **Action:** Review ready, 24 comments of thorough discussion
+### By Risk Level
+- **Medium Risk**: 15
+- **High Risk**: 1
 
-## All PRs by Priority
+### By Priority
+- **High Priority (70-100)**: 0
+- **Medium Priority (40-69)**: 15
+- **Low Priority (0-39)**: 1
 
-| # | Title | Score | Category | Risk | Action | Status |
-|---|-------|-------|----------|------|--------|--------|
-| 13174 | Hash consistency | 75 | bug | medium | fast-track | ✅ Ready |
-| 13179 | dispatch_workflow | 72 | bug | high | fast-track | 🚧 Draft |
-| 12664 | MCP no-firewall | 68 | bug | medium | fast-track | ✅ Ready |
-| 12827 | AWF v0.13.0 chroot | 65 | chore | high | fast-track | ✅ Ready |
-| 12574 | Parallel setup | 62 | feature | high | fast-track | ✅ Ready |
-| 13182 | Shell redirects | 58 | refactor | medium | fast-track | 🚧 Draft |
-| 13183 | payloadDir validation | 35 | chore | medium | defer | 🚧 WIP |
+### By Recommended Action
+- **Batch Review**: 16
 
-## Agent Performance
-- **All PRs from:** Copilot agent
-- **Draft rate:** 43% (3/7) - healthy pipeline
-- **Ready for review:** 57% (4/7)
-- **Average file changes:** 89 files (due to workflow recompilation)
+## 🚀 Top Priority PRs (Top 10)
 
-## Recommended Actions
+1. **[#12664](https://github.com/githubnext/gh-aw/pull/12664)** - Fix MCP config generation when AWF firewall is disabled
+   - Priority: **60/100** | Category: bug | Risk: medium | ✅ READY
+   - Age: 3 days | Files: None | +None/-None
 
-**Today:**
-1. Merge #13174 (hash fix) once CI passes
-2. Review #12664 (MCP fix) - ready now
-3. Review #12827 (AWF update) - ready now
+2. **[#13214](https://github.com/githubnext/gh-aw/pull/13214)** - Add architectural constraints and security patterns to agentic workflow prompts
+   - Priority: **50/100** | Category: feature | Risk: high | 🔶 DRAFT
+   - Age: 0 days | Files: None | +None/-None
 
-**This Week:**
-4. Monitor draft PRs for CI completion
-5. Review #12574 (performance) - ready now
-6. Fast-track #13179 once ready
+3. **[#12831](https://github.com/githubnext/gh-aw/pull/12831)** - chore(deps): bump fast-xml-parser from 5.3.3 to 5.3.4 in /docs
+   - Priority: **40/100** | Category: chore | Risk: medium | ✅ READY
+   - Age: 2 days | Files: None | +None/-None
+
+4. **[#12827](https://github.com/githubnext/gh-aw/pull/12827)** - Update AWF to v0.13.0 and enable --enable-chroot
+   - Priority: **40/100** | Category: chore | Risk: medium | ✅ READY
+   - Age: 2 days | Files: None | +None/-None
+
+5. **[#12574](https://github.com/githubnext/gh-aw/pull/12574)** - Parallelize setup operations with engine-agnostic installation
+   - Priority: **40/100** | Category: chore | Risk: medium | ✅ READY
+   - Age: 3 days | Files: None | +None/-None
+
+6. **[#12099](https://github.com/githubnext/gh-aw/pull/12099)** - Bump hono from 4.11.4 to 4.11.7 in /.github/workflows
+   - Priority: **40/100** | Category: chore | Risk: medium | ✅ READY
+   - Age: 5 days | Files: None | +None/-None
+
+7. **[#12017](https://github.com/githubnext/gh-aw/pull/12017)** - Bump @vitest/coverage-v8 from 4.0.17 to 4.0.18 in /actions/setup/js
+   - Priority: **40/100** | Category: chore | Risk: medium | ✅ READY
+   - Age: 5 days | Files: None | +None/-None
+
+8. **[#12016](https://github.com/githubnext/gh-aw/pull/12016)** - Bump @types/node from 25.0.9 to 25.0.10 in /actions/setup/js
+   - Priority: **40/100** | Category: chore | Risk: medium | ✅ READY
+   - Age: 5 days | Files: None | +None/-None
+
+9. **[#12015](https://github.com/githubnext/gh-aw/pull/12015)** - Bump astro from 5.16.12 to 5.16.15 in /docs
+   - Priority: **40/100** | Category: chore | Risk: medium | ✅ READY
+   - Age: 5 days | Files: None | +None/-None
+
+10. **[#12014](https://github.com/githubnext/gh-aw/pull/12014)** - Bump prettier from 3.8.0 to 3.8.1 in /actions/setup/js
+   - Priority: **40/100** | Category: chore | Risk: medium | ✅ READY
+   - Age: 5 days | Files: None | +None/-None
+
+## ✅ Auto-merge Candidates
+
+None identified. All PRs require manual review.
+
+
+## ⚡ Fast-track Review Needed
+
+None identified.
+
+
+## 📦 Batch Processing Opportunities
+
+**All 16 PRs are recommended for batch review**
+
+Suggested batches:
+- **Batch 1 - Chore PRs**: 14 dependency updates and maintenance PRs
+- **Batch 2 - Features/Bugs**: 2 PRs (1 feature + 1 bug fix)
+
+## 🗑️ Close Candidates
+
+None identified. All PRs are recent (< 7 days old).
+
+## 📊 Agent Performance Summary
+
+- **Copilot**: 2 PRs (1 feature, 1 bug)
+- **Dependabot**: 14 PRs (all dependency updates)
+
+All agent-created PRs are dependency updates or recent feature/bug fix work.
+
+## 🔄 Trends
+
+Compared to the last triage run (2026-02-02):
+- **New PRs since last run**: 13
+- **Continuing PRs**: 3
+- Most new PRs are dependency updates from Dependabot
+- All PRs are recent (< 7 days), showing active maintenance
+
+## Next Steps
+
+1. ✅ Review the 14 dependency update PRs in batch (low risk)
+2. 🔍 Prioritize manual review of feature/bug PRs
+3. 📝 Consider enabling Dependabot auto-merge for low-risk dependency updates
+4. 🔄 Re-triage in 6 hours for new PRs
+5. 🎯 Focus on clearing the 3 continuing PRs from previous triage
 
 ---
-*Last updated: 2026-02-02T00:39:38Z*
+*Generated by PR Triage Agent - Run #21579796943*
