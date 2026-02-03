@@ -164,6 +164,58 @@ func validateServerSecrets(config parser.MCPServerConfig, verbose bool, useActio
 	return nil
 }
 
+// checkGitHubActionsPermissions checks if the GitHub token has permissions to read workflow runs
+// Returns true if the token has the required permissions, false otherwise
+func checkGitHubActionsPermissions() bool {
+	mcpValidationLog.Print("Checking GitHub token permissions for Actions workflow runs")
+
+	// Create a context with timeout for the API call
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// Try to list workflow runs using the GitHub API
+	// We use a minimal query to test permissions without fetching too much data
+	cmd := workflow.ExecGHContext(ctx, "api", "repos/{owner}/{repo}/actions/runs", "--jq", ".total_count", "-X", "GET")
+	output, err := cmd.CombinedOutput()
+
+	if err != nil {
+		mcpValidationLog.Printf("GitHub Actions permissions check failed: %v", err)
+		mcpValidationLog.Printf("Output: %s", string(output))
+
+		// Check for specific permission errors
+		outputStr := string(output)
+		if strings.Contains(outputStr, "403") || strings.Contains(outputStr, "Forbidden") {
+			mcpValidationLog.Print("Token does not have 'actions:read' permission (403 Forbidden)")
+			fmt.Fprintln(os.Stderr, console.FormatWarningMessage("⚠️  GitHub token does not have 'actions:read' permission"))
+			fmt.Fprintln(os.Stderr, console.FormatInfoMessage("The 'logs' and 'audit' tools will not be available"))
+			return false
+		}
+		if strings.Contains(outputStr, "404") || strings.Contains(outputStr, "Not Found") {
+			mcpValidationLog.Print("Repository not found or token lacks access (404 Not Found)")
+			fmt.Fprintln(os.Stderr, console.FormatWarningMessage("⚠️  Repository not found or token lacks repository access"))
+			fmt.Fprintln(os.Stderr, console.FormatInfoMessage("The 'logs' and 'audit' tools will not be available"))
+			return false
+		}
+		if strings.Contains(outputStr, "401") || strings.Contains(outputStr, "Unauthorized") {
+			mcpValidationLog.Print("Token authentication failed (401 Unauthorized)")
+			fmt.Fprintln(os.Stderr, console.FormatWarningMessage("⚠️  GitHub token authentication failed"))
+			fmt.Fprintln(os.Stderr, console.FormatInfoMessage("The 'logs' and 'audit' tools will not be available"))
+			return false
+		}
+
+		// For other errors, log but don't assume permission failure
+		mcpValidationLog.Printf("Unable to verify GitHub Actions permissions: %v", err)
+		fmt.Fprintln(os.Stderr, console.FormatWarningMessage(fmt.Sprintf("⚠️  Could not verify GitHub Actions permissions: %v", err)))
+		fmt.Fprintln(os.Stderr, console.FormatInfoMessage("The 'logs' and 'audit' tools may not be available"))
+		return false
+	}
+
+	// Successfully queried workflow runs - token has required permissions
+	mcpValidationLog.Printf("GitHub Actions permissions check succeeded. Output: %s", strings.TrimSpace(string(output)))
+	fmt.Fprintln(os.Stderr, console.FormatSuccessMessage("✅ GitHub token has 'actions:read' permission"))
+	return true
+}
+
 // validateMCPServerConfiguration validates that the CLI is properly configured
 // by running the status command as a test
 func validateMCPServerConfiguration(cmdPath string) error {
