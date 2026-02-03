@@ -59,9 +59,9 @@ With --codespaces flag:
 - Adds GitHub Copilot extensions and gh aw CLI installation
 - Use without value (--codespaces) for current repo only, or with comma-separated repos (--codespaces repo1,repo2)
 
-With --campaign flag (experimental):
-- Enables campaign-related prompts and functionality for progress tracking and multi-workflow coordination
-- Note: Campaign creation is handled through the agentic-workflows dispatcher (use @agentic-workflows and ask to work on an agentic campaign)
+With --campaign flag (experimental, currently a no-op):
+- Reserved for future campaign-related prompts and multi-workflow coordination features
+- Does not change current init behavior; safe to ignore for now
 
 With --completions flag:
 - Automatically detects your shell (bash, zsh, fish, or PowerShell)

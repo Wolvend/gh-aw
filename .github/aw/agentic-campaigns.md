@@ -43,7 +43,7 @@ If the user’s request mixes multiple tasks (e.g., “create campaign + project
 - Ensure it imports `shared/campaign.md`.
 - If tracking is enabled:
   - confirm `project:` is set correctly on all project-related safe outputs
-  - confirm required token secret is configured (PROJECT_GITHUB_TOKEN for Projects)
+  - confirm required token secret is configured (GH_AW_PROJECT_GITHUB_TOKEN for Projects)
 - Recompile after frontmatter changes.
 
 ## Useful commands

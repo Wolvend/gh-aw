@@ -1,5 +1,5 @@
 ---
-description: Debug agentic campaigns and campaign orchestrators (generated from .campaign.md specs) for GitHub Agentic Workflows (gh-aw).
+description: Debug agentic campaigns and campaign orchestrators (GitHub Actions workflows under .github/workflows/<campaign-id>.md with campaign configuration under project:) for GitHub Agentic Workflows (gh-aw).
 infer: false
 ---
 

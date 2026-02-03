@@ -35,8 +35,7 @@ Markdown body changes do not require recompilation.
 
 ### Mode 1: Interactive Mode (Conversational)
 
-Ask only a few questions at a time and converge quickly to a concrete `.campaign.md` file.
-Ask only a few questions at a time and converge quickly to a concrete campaign workflow file.
+Ask only a few questions at a time and converge quickly to a concrete campaign workflow file at `.github/workflows/<campaign-id>.md`.
 
 Clarify:
 - Campaign objective (what outcome is measured)
