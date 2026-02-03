@@ -11,11 +11,11 @@ import (
 
 func TestCheckGitHubActionsPermissions(t *testing.T) {
 	tests := []struct {
-		name             string
-		setupEnv         func()
-		expectedResult   bool
-		skipInCI         bool
-		skipReason       string
+		name           string
+		setupEnv       func()
+		expectedResult bool
+		skipInCI       bool
+		skipReason     string
 	}{
 		{
 			name: "no token available",

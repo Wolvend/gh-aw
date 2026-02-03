@@ -71,7 +71,7 @@ This is a test workflow.
 	defer session.Close()
 
 	// List available tools
-	listToolsResult, err := session.ListTools(ctx, &mcp.ListToolsRequest{})
+	listToolsResult, err := session.ListTools(ctx, &mcp.ListToolsParams{})
 	require.NoError(t, err, "Failed to list tools")
 	require.NotNil(t, listToolsResult, "ListTools result should not be nil")
 
