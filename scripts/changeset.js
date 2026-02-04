@@ -434,9 +434,10 @@ async function runRelease(versionTag, skipConfirmation = false) {
       console.log(formatSuccessMessage("Successfully pulled latest changes"));
     }
   } catch (error) {
-    // If pull fails, it might be because there are no changes or remote is not configured
-    // Log the error details but continue (working tree check already passed)
-    console.log(formatInfoMessage(`Pull from remote failed: ${error.message}`));
+    // Pull failed due to an error (e.g., network issues, authentication, conflicts, or no remote configured)
+    // Log the error details but continue (working tree check already passed, so local state is clean)
+    const errorDetails = error.stderr || error.message;
+    console.log(formatInfoMessage(`Pull from remote failed: ${errorDetails}`));
     console.log(formatInfoMessage("Continuing with local state (working tree is clean)"));
   }
 
