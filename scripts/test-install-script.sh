@@ -352,56 +352,40 @@ else
     exit 1
 fi
 
-# Test 11: Verify skip-validation flag functionality
+# Test 11: Verify "latest" version functionality
 echo ""
-echo "Test 11: Verify skip-validation flag functionality"
+echo "Test 11: Verify 'latest' version functionality"
 
-# Check for --skip-validation flag
-if grep -q "\-\-skip-validation\|\-\-no-validate" "$PROJECT_ROOT/install-gh-aw.sh"; then
-    echo "  ✓ PASS: --skip-validation flag is documented"
+# Check for "latest" as default version
+if grep -q "using 'latest'" "$PROJECT_ROOT/install-gh-aw.sh"; then
+    echo "  ✓ PASS: Script uses 'latest' as default version"
 else
-    echo "  ✗ FAIL: --skip-validation flag not found"
+    echo "  ✗ FAIL: Script does not use 'latest' as default version"
     exit 1
 fi
 
-# Check for SKIP_VALIDATION variable
-if grep -q "SKIP_VALIDATION=" "$PROJECT_ROOT/install-gh-aw.sh"; then
-    echo "  ✓ PASS: SKIP_VALIDATION variable exists"
+# Check for latest URL construction
+if grep -q 'releases/latest/download' "$PROJECT_ROOT/install-gh-aw.sh"; then
+    echo "  ✓ PASS: Latest release URL pattern is correct"
 else
-    echo "  ✗ FAIL: SKIP_VALIDATION variable not found"
+    echo "  ✗ FAIL: Latest release URL pattern not found"
     exit 1
 fi
 
-# Check for skip validation logic
-if grep -q 'if \[ "\$SKIP_VALIDATION" = false \]' "$PROJECT_ROOT/install-gh-aw.sh"; then
-    echo "  ✓ PASS: Skip validation conditional logic exists"
-else
-    echo "  ✗ FAIL: Skip validation conditional logic not found"
+# Check that API validation is removed
+if grep -q "fetch_release_data.*releases/latest" "$PROJECT_ROOT/install-gh-aw.sh"; then
+    echo "  ✗ FAIL: API validation for latest release still exists"
     exit 1
+else
+    echo "  ✓ PASS: API validation for latest release removed"
 fi
 
-# Check for warning message about skipping validation
-if grep -q "Skipping version validation" "$PROJECT_ROOT/install-gh-aw.sh"; then
-    echo "  ✓ PASS: Skip validation warning message exists"
-else
-    echo "  ✗ FAIL: Skip validation warning message not found"
+# Check that validation logic is removed
+if grep -q "Validating release.*exists" "$PROJECT_ROOT/install-gh-aw.sh"; then
+    echo "  ✗ FAIL: Version validation logic still exists"
     exit 1
-fi
-
-# Check for improved error message about network restrictions
-if grep -q "network restrictions" "$PROJECT_ROOT/install-gh-aw.sh"; then
-    echo "  ✓ PASS: Network restrictions error message exists"
 else
-    echo "  ✗ FAIL: Network restrictions error message not found"
-    exit 1
-fi
-
-# Check for solution suggestions in error message
-if grep -q "Solutions:" "$PROJECT_ROOT/install-gh-aw.sh"; then
-    echo "  ✓ PASS: Error message includes solution suggestions"
-else
-    echo "  ✗ FAIL: Error message does not include solution suggestions"
-    exit 1
+    echo "  ✓ PASS: Version validation logic removed"
 fi
 
 echo ""
