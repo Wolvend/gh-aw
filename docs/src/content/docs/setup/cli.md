@@ -62,6 +62,8 @@ curl -sL https://raw.githubusercontent.com/github/gh-aw/main/install-gh-aw.sh | 
 
 Installs to `~/.local/share/gh/extensions/gh-aw/gh-aw` and works with all `gh aw` commands. Supports Linux, macOS, FreeBSD, and Windows.
 
+**Note**: When installing with the script, the CLI will refuse to run if the GitHub token is not available. In this case, you should run the tool using the full local path: `~/.local/share/gh/extensions/gh-aw/gh-aw` instead of using `gh aw`.
+
 ### GitHub Actions Setup Action
 
 Install the CLI in GitHub Actions workflows using the `setup-cli` action:

@@ -50,6 +50,8 @@ gh extension upgrade gh-aw
 > curl -sL https://raw.githubusercontent.com/github/gh-aw/main/install-gh-aw.sh | bash
 > ```
 >
+> **Note**: When installing with the script, the CLI will refuse to run if the GitHub token is not available. In this case, you should run the tool using the full local path: `~/.local/share/gh/extensions/gh-aw/gh-aw` instead of using `gh aw`.
+>
 
 Check your version with `gh aw version` and compare against the [latest release](https://github.com/github/gh-aw/releases). If you encounter issues, try a clean reinstall with `gh extension remove gh-aw` followed by `gh extension install github/gh-aw`.
 

@@ -24,6 +24,8 @@ curl -sL https://raw.githubusercontent.com/github/gh-aw/main/install-gh-aw.sh | 
 
 **What this does**: Downloads and installs the gh-aw binary to `~/.local/share/gh/extensions/gh-aw/`
 
+**Note**: When installing with the script, the CLI will refuse to run if the GitHub token is not available. In this case, you should run the tool using the full local path: `~/.local/share/gh/extensions/gh-aw/gh-aw` instead of using `gh aw`.
+
 **Verify installation**:
 
 ```bash

@@ -19,6 +19,8 @@ curl -sL https://raw.githubusercontent.com/github/gh-aw/main/install-gh-aw.sh | 
 
 After installation, the binary is installed to `~/.local/share/gh/extensions/gh-aw/gh-aw` and can be used with `gh aw` commands just like the extension installation.
 
+**Note**: When installing with the script, the CLI will refuse to run if the GitHub token is not available. In this case, you should run the tool using the full local path: `~/.local/share/gh/extensions/gh-aw/gh-aw` instead of using `gh aw`.
+
 ### Extension Not Found After Installation
 
 If you installed the extension but `gh aw` command is not found:
