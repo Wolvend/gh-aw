@@ -232,6 +232,15 @@ func cleanupTrialSecrets(repoSlug string, tracker *TrialSecretTracker, verbose b
 		return nil
 	}
 
+	// Runtime check: Only allow secret deletion when GH_AW_ALLOW_SECRET_DELETION is enabled
+	// This is a safety guard to prevent accidental secret deletion outside of trial contexts
+	if os.Getenv("GH_AW_ALLOW_SECRET_DELETION") != "1" {
+		if verbose {
+			fmt.Fprintln(os.Stderr, console.FormatWarningMessage("Secret deletion is disabled (GH_AW_ALLOW_SECRET_DELETION not set)"))
+		}
+		return fmt.Errorf("secret deletion is disabled: GH_AW_ALLOW_SECRET_DELETION environment variable must be set to '1'")
+	}
+
 	if verbose {
 		fmt.Fprintln(os.Stderr, console.FormatInfoMessage("Cleaning up API key secrets from host repository"))
 	}

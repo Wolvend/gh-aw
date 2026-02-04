@@ -264,6 +264,11 @@ func RunWorkflowOnGitHub(ctx context.Context, workflowIdOrName string, enable bo
 	// Handle secret pushing if requested
 	var secretTracker *TrialSecretTracker
 	if pushSecrets {
+		// Enable secret deletion for trial/run command with push-secrets flag
+		// This is a runtime safety guard to prevent accidental secret deletion outside of trial contexts
+		os.Setenv("GH_AW_ALLOW_SECRET_DELETION", "1")
+		defer os.Unsetenv("GH_AW_ALLOW_SECRET_DELETION")
+
 		// Determine target repository
 		var targetRepo string
 		if repoOverride != "" {

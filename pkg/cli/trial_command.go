@@ -195,6 +195,11 @@ Trial results are saved both locally (in trials/ directory) and in the host repo
 
 // RunWorkflowTrials executes the main logic for trialing one or more workflows
 func RunWorkflowTrials(ctx context.Context, workflowSpecs []string, opts TrialOptions) error {
+	// Enable secret deletion for trial command
+	// This is a runtime safety guard to prevent accidental secret deletion outside of trial contexts
+	os.Setenv("GH_AW_ALLOW_SECRET_DELETION", "1")
+	defer os.Unsetenv("GH_AW_ALLOW_SECRET_DELETION")
+
 	trialLog.Printf("Starting trial execution: specs=%v, logicalRepo=%s, cloneRepo=%s, hostRepo=%s, repeat=%d", workflowSpecs, opts.Repos.LogicalRepo, opts.Repos.CloneRepo, opts.Repos.HostRepo, opts.RepeatCount)
 
 	// Parse all workflow specifications
