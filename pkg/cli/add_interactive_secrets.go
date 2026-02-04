@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/github/gh-aw/pkg/console"
 	"github.com/github/gh-aw/pkg/constants"
 	"github.com/github/gh-aw/pkg/workflow"
 )
@@ -34,7 +35,7 @@ func (c *AddInteractiveConfig) checkExistingSecrets() error {
 	}
 
 	if c.Verbose && len(c.existingSecrets) > 0 {
-		fmt.Fprintf(os.Stderr, "Found %d existing repository secret(s)\n", len(c.existingSecrets))
+		fmt.Fprintln(os.Stderr, console.FormatInfoMessage(fmt.Sprintf("Found %d existing repository secret(s)", len(c.existingSecrets))))
 	}
 
 	return nil

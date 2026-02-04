@@ -359,7 +359,7 @@ func addWorkflowWithTracking(workflow *WorkflowSpec, number int, verbose bool, q
 	}
 
 	if verbose {
-		fmt.Fprintln(os.Stderr, "Locating workflow components...")
+		fmt.Fprintln(os.Stderr, console.FormatInfoMessage("Locating workflow components..."))
 	}
 
 	workflowPath := workflow.WorkflowPath

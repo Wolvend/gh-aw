@@ -59,9 +59,9 @@ func (c *AddInteractiveConfig) applyChanges(ctx context.Context, workflowFiles, 
 		if err := c.addRepositorySecret(secretName, secretValue); err != nil {
 			fmt.Fprintln(os.Stderr, console.FormatErrorMessage(fmt.Sprintf("Failed to add secret: %v", err)))
 			fmt.Fprintln(os.Stderr, "")
-			fmt.Fprintln(os.Stderr, "Please add the secret manually:")
+			fmt.Fprintln(os.Stderr, console.FormatInfoMessage("Please add the secret manually:"))
 			fmt.Fprintln(os.Stderr, "  1. Go to your repository Settings → Secrets and variables → Actions")
-			fmt.Fprintf(os.Stderr, "  2. Click 'New repository secret' and add '%s'\n", secretName)
+			fmt.Fprintln(os.Stderr, console.FormatInfoMessage(fmt.Sprintf("  2. Click 'New repository secret' and add '%s'", secretName)))
 			return fmt.Errorf("failed to add secret: %w", err)
 		}
 

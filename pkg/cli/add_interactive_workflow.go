@@ -46,17 +46,17 @@ func (c *AddInteractiveConfig) checkStatusAndOfferRun(ctx context.Context) error
 			parsed, _ := parseWorkflowSpec(c.WorkflowSpecs[0])
 			if parsed != nil {
 				if c.Verbose {
-					fmt.Fprintf(os.Stderr, "Checking workflow status (attempt %d/5) for: %s\n", i+1, parsed.WorkflowName)
+					fmt.Fprintln(os.Stderr, console.FormatInfoMessage(fmt.Sprintf("Checking workflow status (attempt %d/5) for: %s", i+1, parsed.WorkflowName)))
 				}
 				// Check if workflow is in status
 				statuses, err := getWorkflowStatuses(parsed.WorkflowName, c.RepoOverride, c.Verbose)
 				if err != nil {
 					if c.Verbose {
-						fmt.Fprintf(os.Stderr, "Status check error: %v\n", err)
+						fmt.Fprintln(os.Stderr, console.FormatWarningMessage(fmt.Sprintf("Status check error: %v", err)))
 					}
 				} else if len(statuses) > 0 {
 					if c.Verbose {
-						fmt.Fprintf(os.Stderr, "Found %d workflow(s) matching pattern\n", len(statuses))
+						fmt.Fprintln(os.Stderr, console.FormatInfoMessage(fmt.Sprintf("Found %d workflow(s) matching pattern", len(statuses))))
 					}
 					workflowFound = true
 					break
@@ -73,7 +73,7 @@ func (c *AddInteractiveConfig) checkStatusAndOfferRun(ctx context.Context) error
 
 	if !workflowFound {
 		fmt.Fprintln(os.Stderr, console.FormatWarningMessage("Could not verify workflow status."))
-		fmt.Fprintf(os.Stderr, "You can check status with: %s status\n", string(constants.CLIExtensionPrefix))
+		fmt.Fprintln(os.Stderr, console.FormatInfoMessage(fmt.Sprintf("You can check status with: %s status", string(constants.CLIExtensionPrefix))))
 		c.showFinalInstructions()
 		return nil
 	}
@@ -138,7 +138,7 @@ func (c *AddInteractiveConfig) checkStatusAndOfferRun(ctx context.Context) error
 				fmt.Fprintln(os.Stderr, "")
 				fmt.Fprintln(os.Stderr, console.FormatSuccessMessage("Workflow triggered successfully!"))
 				fmt.Fprintln(os.Stderr, "")
-				fmt.Fprintf(os.Stderr, "🔗 View workflow run: %s\n", runInfo.URL)
+				fmt.Fprintln(os.Stderr, console.FormatInfoMessage(fmt.Sprintf("🔗 View workflow run: %s", runInfo.URL)))
 			}
 		}
 	}
@@ -159,20 +159,20 @@ func getWorkflowStatuses(pattern, repoOverride string, verbose bool) ([]Workflow
 	}
 
 	if verbose {
-		fmt.Fprintf(os.Stderr, "Running: gh %s\n", strings.Join(args, " "))
+		fmt.Fprintln(os.Stderr, console.FormatVerboseMessage(fmt.Sprintf("Running: gh %s", strings.Join(args, " "))))
 	}
 
 	output, err := workflow.RunGH("Checking workflow status...", args...)
 	if err != nil {
 		if verbose {
-			fmt.Fprintf(os.Stderr, "gh workflow list failed: %v\n", err)
+			fmt.Fprintln(os.Stderr, console.FormatWarningMessage(fmt.Sprintf("gh workflow list failed: %v", err)))
 		}
 		return nil, err
 	}
 
 	if verbose {
-		fmt.Fprintf(os.Stderr, "gh workflow list output: %s\n", string(output))
-		fmt.Fprintf(os.Stderr, "Looking for workflow with filename containing: %s\n", pattern)
+		fmt.Fprintln(os.Stderr, console.FormatVerboseMessage(fmt.Sprintf("gh workflow list output: %s", string(output))))
+		fmt.Fprintln(os.Stderr, console.FormatVerboseMessage(fmt.Sprintf("Looking for workflow with filename containing: %s", pattern)))
 	}
 
 	// Check if any workflow path contains the pattern
@@ -181,13 +181,13 @@ func getWorkflowStatuses(pattern, repoOverride string, verbose bool) ([]Workflow
 	// We check if the path contains the pattern
 	if strings.Contains(string(output), pattern+".lock.yml") || strings.Contains(string(output), pattern+".md") {
 		if verbose {
-			fmt.Fprintf(os.Stderr, "Workflow with filename '%s' found in workflow list\n", pattern)
+			fmt.Fprintln(os.Stderr, console.FormatVerboseMessage(fmt.Sprintf("Workflow with filename '%s' found in workflow list", pattern)))
 		}
 		return []WorkflowStatus{{Workflow: pattern}}, nil
 	}
 
 	if verbose {
-		fmt.Fprintf(os.Stderr, "Workflow with filename '%s' NOT found in workflow list\n", pattern)
+		fmt.Fprintln(os.Stderr, console.FormatVerboseMessage(fmt.Sprintf("Workflow with filename '%s' NOT found in workflow list", pattern)))
 	}
 	return nil, nil
 }

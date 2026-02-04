@@ -179,9 +179,9 @@ func (c *AddInteractiveConfig) determineFilesToAdd() (workflowFiles []string, in
 	}
 
 	fmt.Fprintln(os.Stderr, "")
-	fmt.Fprintln(os.Stderr, "The following workflow files will be added:")
+	fmt.Fprintln(os.Stderr, console.FormatInfoMessage("The following workflow files will be added:"))
 	for _, f := range workflowFiles {
-		fmt.Fprintf(os.Stderr, "  • .github/workflows/%s\n", f)
+		fmt.Fprintln(os.Stderr, console.FormatInfoMessage(fmt.Sprintf("  • .github/workflows/%s", f)))
 	}
 
 	return workflowFiles, initFiles, nil
@@ -229,7 +229,7 @@ func (c *AddInteractiveConfig) showFinalInstructions() {
 	// Show summary with workflow name(s)
 	if c.resolvedWorkflows != nil && len(c.resolvedWorkflows.Workflows) > 0 {
 		wf := c.resolvedWorkflows.Workflows[0]
-		fmt.Fprintf(os.Stderr, "The workflow '%s' has been added to the repository and will now run automatically.\n", wf.Spec.WorkflowName)
+		fmt.Fprintln(os.Stderr, console.FormatSuccessMessage(fmt.Sprintf("The workflow '%s' has been added to the repository and will now run automatically.", wf.Spec.WorkflowName)))
 		c.showWorkflowDescriptions()
 	}
 

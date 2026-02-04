@@ -72,7 +72,7 @@ func (c *AddInteractiveConfig) selectAIEngineAndKey() error {
 
 	// If engine is already overridden, skip selection
 	if c.EngineOverride != "" {
-		fmt.Fprintf(os.Stderr, "Using coding agent: %s\n", c.EngineOverride)
+		fmt.Fprintln(os.Stderr, console.FormatInfoMessage(fmt.Sprintf("Using coding agent: %s", c.EngineOverride)))
 		return c.collectAPIKey(c.EngineOverride)
 	}
 
@@ -218,7 +218,7 @@ func (c *AddInteractiveConfig) collectGenericAPIKey(opt *constants.EngineOption)
 	}
 
 	fmt.Fprintln(os.Stderr, "")
-	fmt.Fprintf(os.Stderr, "%s requires an API key.\n", opt.Label)
+	fmt.Fprintln(os.Stderr, console.FormatInfoMessage(fmt.Sprintf("%s requires an API key.", opt.Label)))
 	fmt.Fprintln(os.Stderr, "")
 	fmt.Fprintln(os.Stderr, "Get your API key from:")
 	fmt.Fprintln(os.Stderr, console.FormatCommandMessage(fmt.Sprintf("  %s", opt.KeyURL)))
