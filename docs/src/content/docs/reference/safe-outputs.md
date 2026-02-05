@@ -21,58 +21,48 @@ The agent requests issue creation; a separate job with `issues: write` creates i
 
 ## Available Safe Output Types
 
-> [!NOTE]
-> Most safe output types support cross-repository operations. Exceptions are noted below.
+Most safe output types support cross-repository operations. Same-repo only restrictions are noted in the table below.
 
-### Issues & Discussions
-
-- [**Create Issue**](#issue-creation-create-issue) (`create-issue`) — Create GitHub issues (max: 1)
-- [**Update Issue**](#issue-updates-update-issue) (`update-issue`) — Update issue status, title, or body (max: 1)
-- [**Close Issue**](#close-issue-close-issue) (`close-issue`) — Close issues with comment (max: 1)
-- [**Link Sub-Issue**](#link-sub-issue-link-sub-issue) (`link-sub-issue`) — Link issues as sub-issues (max: 1)
-- [**Create Discussion**](#discussion-creation-create-discussion) (`create-discussion`) — Create GitHub discussions (max: 1)
-- [**Update Discussion**](#discussion-updates-update-discussion) (`update-discussion`) — Update discussion title, body, or labels (max: 1)
-- [**Close Discussion**](#close-discussion-close-discussion) (`close-discussion`) — Close discussions with comment and resolution (max: 1)
-
-### Pull Requests
-
-- [**Create PR**](#pull-request-creation-create-pull-request) (`create-pull-request`) — Create pull requests with code changes (max: 1)
-- [**Update PR**](#pull-request-updates-update-pull-request) (`update-pull-request`) — Update PR title or body (max: 1)
-- [**Close PR**](#close-pull-request-close-pull-request) (`close-pull-request`) — Close pull requests without merging (max: 10)
-- [**PR Review Comments**](#pr-review-comments-create-pull-request-review-comment) (`create-pull-request-review-comment`) — Create review comments on code lines (max: 10)
-- [**Push to PR Branch**](#push-to-pr-branch-push-to-pull-request-branch) (`push-to-pull-request-branch`) — Push changes to PR branch (max: 1, same-repo only)
-
-### Labels, Assignments & Reviews
-
-- [**Add Comment**](#comment-creation-add-comment) (`add-comment`) — Post comments on issues, PRs, or discussions (max: 1)
-- [**Hide Comment**](#hide-comment-hide-comment) (`hide-comment`) — Hide comments on issues, PRs, or discussions (max: 5)
-- [**Add Labels**](#add-labels-add-labels) (`add-labels`) — Add labels to issues or PRs (max: 3)
-- [**Remove Labels**](#remove-labels-remove-labels) (`remove-labels`) — Remove labels from issues or PRs (max: 3)
-- [**Add Reviewer**](#add-reviewer-add-reviewer) (`add-reviewer`) — Add reviewers to pull requests (max: 3)
-- [**Assign Milestone**](#assign-milestone-assign-milestone) (`assign-milestone`) — Assign issues to milestones (max: 1)
-- [**Assign to Agent**](#assign-to-agent-assign-to-agent) (`assign-to-agent`) — Assign Copilot agents to issues or PRs (max: 1)
-- [**Assign to User**](#assign-to-user-assign-to-user) (`assign-to-user`) — Assign users to issues (max: 1)
-
-### Projects, Releases & Assets
-
-- [**Create Project**](#project-creation-create-project) (`create-project`) — Create new GitHub Projects boards (max: 1, cross-repo)
-- [**Update Project**](#project-board-updates-update-project) (`update-project`) — Manage GitHub Projects boards (max: 10, same-repo only)
-- [**Create Project Status Update**](#project-status-updates-create-project-status-update) (`create-project-status-update`) — Create project status updates
-- [**Update Release**](#release-updates-update-release) (`update-release`) — Update GitHub release descriptions (max: 1)
-- [**Upload Assets**](#asset-uploads-upload-asset) (`upload-asset`) — Upload files to orphaned git branch (max: 10, same-repo only)
-
-### Security & Agent Tasks
-
-- [**Dispatch Workflow**](#workflow-dispatch-dispatch-workflow) (`dispatch-workflow`) — Trigger other workflows with inputs (max: 3, same-repo only)
-- [**Code Scanning Alerts**](#code-scanning-alerts-create-code-scanning-alert) (`create-code-scanning-alert`) — Generate SARIF security advisories (max: unlimited, same-repo only)
-- [**Autofix Code Scanning Alerts**](#autofix-code-scanning-alerts-autofix-code-scanning-alert) (`autofix-code-scanning-alert`) — Create automated fixes for code scanning alerts (max: 10, same-repo only)
-- [**Create Agent Session**](#agent-session-creation-create-agent-session) (`create-agent-session`) — Create Copilot agent sessions (max: 1)
-
-### System Types (Auto-Enabled)
-
-- [**No-Op**](#no-op-logging-noop) (`noop`) — Log completion message for transparency (max: 1, same-repo only)
-- [**Missing Tool**](#missing-tool-reporting-missing-tool) (`missing-tool`) — Report missing tools (max: unlimited, same-repo only)
-- [**Missing Data**](#missing-data-reporting-missing-data) (`missing-data`) — Report missing data required to achieve goals (max: unlimited, same-repo only)
+| Type | Key | Description | Default Max |
+|------|-----|-------------|-------------|
+| **Issues & Discussions** | | | |
+| [Create Issue](#issue-creation-create-issue) | `create-issue` | Create GitHub issues | 1 |
+| [Update Issue](#issue-updates-update-issue) | `update-issue` | Update issue status, title, or body | 1 |
+| [Close Issue](#close-issue-close-issue) | `close-issue` | Close issues with comment | 1 |
+| [Link Sub-Issue](#link-sub-issue-link-sub-issue) | `link-sub-issue` | Link issues as sub-issues | 1 |
+| [Create Discussion](#discussion-creation-create-discussion) | `create-discussion` | Create GitHub discussions | 1 |
+| [Update Discussion](#discussion-updates-update-discussion) | `update-discussion` | Update discussion title, body, or labels | 1 |
+| [Close Discussion](#close-discussion-close-discussion) | `close-discussion` | Close discussions with resolution | 1 |
+| [Add Comment](#comment-creation-add-comment) | `add-comment` | Post comments on issues, PRs, or discussions | 1 |
+| [Hide Comment](#hide-comment-hide-comment) | `hide-comment` | Hide comments | 5 |
+| **Pull Requests** | | | |
+| [Create PR](#pull-request-creation-create-pull-request) | `create-pull-request` | Create pull requests with code changes | 1 |
+| [Update PR](#pull-request-updates-update-pull-request) | `update-pull-request` | Update PR title or body | 1 |
+| [Close PR](#close-pull-request-close-pull-request) | `close-pull-request` | Close pull requests without merging | 10 |
+| [PR Review Comments](#pr-review-comments-create-pull-request-review-comment) | `create-pull-request-review-comment` | Create review comments on code lines | 10 |
+| [Push to PR Branch](#push-to-pr-branch-push-to-pull-request-branch) | `push-to-pull-request-branch` | Push changes to PR branch (same-repo only) | 1 |
+| **Labels & Assignments** | | | |
+| [Add Labels](#add-labels-add-labels) | `add-labels` | Add labels to issues or PRs | 3 |
+| [Remove Labels](#remove-labels-remove-labels) | `remove-labels` | Remove labels from issues or PRs | 3 |
+| [Add Reviewer](#add-reviewer-add-reviewer) | `add-reviewer` | Add reviewers to pull requests | 3 |
+| [Assign Milestone](#assign-milestone-assign-milestone) | `assign-milestone` | Assign issues to milestones | 1 |
+| [Assign to Agent](#assign-to-agent-assign-to-agent) | `assign-to-agent` | Assign Copilot agents to issues or PRs | 1 |
+| [Assign to User](#assign-to-user-assign-to-user) | `assign-to-user` | Assign users to issues | 1 |
+| **Projects & Releases** | | | |
+| [Create Project](#project-creation-create-project) | `create-project` | Create GitHub Projects boards | 1 |
+| [Update Project](#project-board-updates-update-project) | `update-project` | Manage Projects boards (same-repo only) | 10 |
+| [Project Status Update](#project-status-updates-create-project-status-update) | `create-project-status-update` | Create project status updates | 1 |
+| [Update Release](#release-updates-update-release) | `update-release` | Update GitHub release descriptions | 1 |
+| [Upload Assets](#asset-uploads-upload-asset) | `upload-asset` | Upload files to orphaned git branch (same-repo only) | 10 |
+| **Security & Automation** | | | |
+| [Dispatch Workflow](#workflow-dispatch-dispatch-workflow) | `dispatch-workflow` | Trigger other workflows (same-repo only) | 3 |
+| [Code Scanning Alerts](#code-scanning-alerts-create-code-scanning-alert) | `create-code-scanning-alert` | Generate SARIF security advisories (same-repo only) | unlimited |
+| [Autofix Alerts](#autofix-code-scanning-alerts-autofix-code-scanning-alert) | `autofix-code-scanning-alert` | Create automated fixes (same-repo only) | 10 |
+| [Agent Session](#agent-session-creation-create-agent-session) | `create-agent-session` | Create Copilot agent sessions | 1 |
+| **System (Auto-Enabled)** | | | |
+| [No-Op](#no-op-logging-noop) | `noop` | Log completion message (same-repo only) | 1 |
+| [Missing Tool](#missing-tool-reporting-missing-tool) | `missing-tool` | Report missing tools (same-repo only) | unlimited |
+| [Missing Data](#missing-data-reporting-missing-data) | `missing-data` | Report missing data (same-repo only) | unlimited |
 
 > [!TIP]
 > Custom safe output types: [Custom Safe Output Jobs](/gh-aw/reference/custom-safe-outputs/). See [Deterministic & Agentic Patterns](/gh-aw/guides/deterministic-agentic-patterns/) for combining computation and AI reasoning.
@@ -103,39 +93,19 @@ safe-outputs:
 
 #### Auto-Expiration
 
-The `expires` field auto-closes issues after a time period. Supports integers (days), relative formats (`2h`, `7d`, `2w`, `1m`, `1y`), or `false` to disable expiration. Generates `agentics-maintenance.yml` workflow that runs at the minimum required frequency based on the shortest expiration time across all workflows:
-
-- 1 day or less → every 2 hours
-- 2 days → every 6 hours
-- 3-4 days → every 12 hours
-- 5+ days → daily
-
-Hours less than 24 are treated as 1 day minimum for expiration calculation.
-
-To explicitly disable expiration (useful when create-issue has a default expiration), use `expires: false`:
+The `expires` field auto-closes issues after a time period using integers (days) or relative formats (`2h`, `7d`, `2w`, `1m`, `1y`). Set to `false` to disable. Generates `agentics-maintenance.yml` workflow with frequency based on shortest expiration: 1 day or less runs every 2 hours, 2 days runs every 6 hours, 3-4 days runs every 12 hours, and 5+ days runs daily. Hours less than 24 are treated as 1 day minimum.
 
 #### Issue Grouping
 
-The `group` field (default: `false`) automatically organizes multiple issues as sub-issues under a parent issue. When enabled:
+Set `group: true` to automatically organize multiple issues as sub-issues under a parent (max 64 sub-issues per parent). Parent issues are created using the workflow ID as the group identifier. Useful for planning workflows that break down epics into tasks or batch processing workflows.
 
-- Parent issues are automatically created and managed using the workflow ID as the group identifier
-- Child issues are linked to the parent using GitHub's sub-issue relationships
-- Maximum of 64 sub-issues per parent issue
-- Parent issues include metadata tracking all sub-issues
-
-This is useful for workflows that create multiple related issues, such as planning workflows that break down epics into tasks, or batch processing workflows that create issues for individual items.
-
-**Example:**
 ```yaml wrap
 safe-outputs:
   create-issue:
     title-prefix: "[plan] "
-    labels: [plan, ai-generated]
-    max: 5
     group: true
+    max: 5
 ```
-
-In this example, if the workflow creates 5 issues, all will be automatically grouped under a parent issue, making it easy to track related work items together.
 
 #### Temporary IDs for Issue References
 
@@ -143,62 +113,18 @@ Use temporary IDs (`aw_` + 12 hex chars) to reference parent issues before creat
 
 #### Auto-Close Older Issues
 
-The `close-older-issues` field (default: `false`) automatically closes previous open issues from the same workflow when a new issue is created. This is useful for workflows that generate recurring reports or status updates, ensuring only the latest issue remains open.
+Set `close-older-issues: true` to automatically close previous open issues from the same workflow when creating a new one. Searches for open issues with matching workflow-id markers and closes up to 10 as "not planned" with a comment linking to the new issue. Only runs if new issue creation succeeds. Useful for recurring reports where only the latest issue should remain open.
 
 ```yaml wrap
 safe-outputs:
   create-issue:
     title-prefix: "[weekly-report] "
-    labels: [report, automation]
     close-older-issues: true
 ```
 
-When enabled:
-- Searches for open issues containing the same workflow-id marker in their body
-- Closes found issues as "not planned" with a comment linking to the new issue
-- Maximum 10 older issues will be closed
-- Only runs if the new issue creation succeeds
-
 #### Searching for Workflow-Created Items
 
-All items created by workflows (issues, pull requests, discussions, and comments) include a hidden **workflow-id marker** in their body:
-
-```html
-<!-- gh-aw-workflow-id: WORKFLOW_NAME -->
-```
-
-You can use this marker to find all items created by a specific workflow on GitHub.com.
-
-**Search Examples:**
-
-Find all open issues created by the `daily-team-status` workflow:
-```
-repo:owner/repo is:issue is:open "gh-aw-workflow-id: daily-team-status" in:body
-```
-
-Find all pull requests created by the `security-audit` workflow:
-```
-repo:owner/repo is:pr "gh-aw-workflow-id: security-audit" in:body
-```
-
-Find all items (issues, PRs, discussions) from any workflow in your organization:
-```
-org:your-org "gh-aw-workflow-id:" in:body
-```
-
-Find comments from a specific workflow:
-```
-repo:owner/repo "gh-aw-workflow-id: bot-responder" in:comments
-```
-
-> [!TIP]
-> **Search Tips for Workflow Markers**
->
-> - Use quotes around the marker text to search for the exact phrase
-> - Add `in:body` to search issue/PR descriptions, or `in:comments` for comments
-> - Combine with other filters like `is:open`, `is:closed`, `created:>2024-01-01`
-> - The workflow name in the marker is the workflow filename without the `.md` extension
-> - Use GitHub's advanced search to refine results: [Advanced search documentation](https://docs.github.com/en/search-github/searching-on-github/searching-issues-and-pull-requests)
+All items include a hidden workflow-id marker `<!-- gh-aw-workflow-id: WORKFLOW_NAME -->` in their body. Search using: `repo:owner/repo "gh-aw-workflow-id: workflow-name" in:body` (or `in:comments` for comments). Combine with filters like `is:open`, `is:issue`, `is:pr`, or `created:>2024-01-01`. The workflow name is the filename without `.md` extension.
 
 ### Close Issue (`close-issue:`)
 
@@ -235,21 +161,17 @@ safe-outputs:
 
 #### Hide Older Comments
 
-Set `hide-older-comments: true` to minimize previous comments from the same workflow (identified by `GITHUB_WORKFLOW`) before posting new ones. Useful for status updates. Allowed reasons: `spam`, `abuse`, `off_topic`, `outdated` (default), `resolved`.
+Set `hide-older-comments: true` to minimize previous comments from the same workflow before posting new ones. Default reason: `outdated`. Other reasons: `spam`, `abuse`, `off_topic`, `resolved`.
 
 #### Append-Only Status Comments
 
-By default, gh-aw posts an activation comment when a workflow starts, then updates that same comment with the final status.
-
-If you prefer an append-only timeline (never editing existing comments), set:
+By default, gh-aw updates the activation comment with final status. For an append-only timeline (never editing comments), set `messages.append-only-comments: true` to create new comments instead.
 
 ```yaml wrap
 safe-outputs:
   messages:
     append-only-comments: true
 ```
-
-When enabled, the workflow completion notifier creates a new comment instead of editing the activation comment.
 
 ### Hide Comment (`hide-comment:`)
 
@@ -482,26 +404,15 @@ safe-outputs:
 
 #### Supported Field Types
 
-GitHub Projects V2 supports various custom field types. The following field types are automatically detected and handled:
+GitHub Projects V2 field types are automatically detected: `TEXT` (default), `DATE` (format: `YYYY-MM-DD`), `NUMBER`, `ITERATION` (matched by title), and `SINGLE_SELECT` (creates missing options). Field names are case-insensitive and normalized (e.g., `story_points` matches `Story Points`).
 
-- **`TEXT`** — Text fields (default)
-- **`DATE`** — Date fields (format: `YYYY-MM-DD`)
-- **`NUMBER`** — Numeric fields (story points, estimates, etc.)
-- **`ITERATION`** — Sprint/iteration fields (matched by iteration title)
-- **`SINGLE_SELECT`** — Dropdown/select fields (creates missing options automatically)
-
-**Example field usage:**
 ```yaml
 fields:
-  status: "In Progress"          # SINGLE_SELECT field
-  start_date: "2026-01-04"       # DATE field
-  story_points: 8                # NUMBER field
-  sprint: "Sprint 42"            # ITERATION field (by title)
-  priority: "High"               # SINGLE_SELECT field
+  status: "In Progress"     # SINGLE_SELECT
+  start_date: "2026-01-04"  # DATE
+  story_points: 8           # NUMBER
+  sprint: "Sprint 42"       # ITERATION
 ```
-
-> [!NOTE]
-> Field names are case-insensitive and automatically normalized (e.g., `story_points` matches `Story Points`).
 
 #### Creating Project Views
 
@@ -523,28 +434,7 @@ safe-outputs:
         layout: roadmap
 ```
 
-**View properties:**
-
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `name` | string | Yes | View name (e.g., "Sprint Board", "Task Tracker") |
-| `layout` | string | Yes | View layout: `table`, `board`, or `roadmap` |
-| `filter` | string | No | Filter query (e.g., `is:issue is:open`, `label:bug`) |
-| `visible-fields` | array | No | Field IDs to display (table/board only, not roadmap) |
-
-**Layout types:**
-- **`table`** — List view with customizable columns for detailed tracking
-- **`board`** — Kanban-style cards grouped by status or custom field
-- **`roadmap`** — Timeline visualization with date-based swimlanes
-
-**Filter syntax examples:**
-- `is:issue is:open` — Open issues only
-- `is:pr` — Pull requests only  
-- `is:issue is:pr` — Both issues and PRs
-- `label:bug` — Items with bug label
-- `assignee:@me` — Items assigned to viewer
-
-Views are created automatically during workflow execution. The workflow must include at least one `update_project` operation to provide the target project URL.
+Views require `name` (view name) and `layout` (`table`, `board`, or `roadmap`). Optional: `filter` (e.g., `is:issue is:open`, `label:bug`) and `visible-fields` (field IDs, not supported on roadmap). Views are created during workflow execution when at least one `update_project` operation provides the target project URL.
 
 
 
@@ -566,20 +456,7 @@ safe-outputs:
 - `github-token`: Custom token with Projects permissions (required for Projects v2 access).
 - Often used by scheduled workflows and orchestrator workflows to post run summaries.
 
-#### Required Fields
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `project` | URL | Full GitHub project URL (e.g., `https://github.com/orgs/myorg/projects/73`). **Required** in every agent output message. |
-| `body` | Markdown | Status update content with summary, findings, and next steps |
-
-#### Optional Fields
-
-| Field | Type | Default | Description |
-|-------|------|---------|-------------|
-| `status` | Enum | `ON_TRACK` | Status indicator: `ON_TRACK`, `AT_RISK`, `OFF_TRACK`, `COMPLETE`, `INACTIVE` |
-| `start_date` | Date | Today | Run start date (format: `YYYY-MM-DD`) |
-| `target_date` | Date | Today | Projected completion or milestone date (format: `YYYY-MM-DD`) |
+Required: `project` (full GitHub project URL) and `body` (Markdown content). Optional: `status` (default: `ON_TRACK`, options: `AT_RISK`, `OFF_TRACK`, `COMPLETE`, `INACTIVE`), `start_date` (default: today), `target_date` (default: today). Dates use `YYYY-MM-DD` format.
 
 #### Example Usage
 
@@ -612,15 +489,7 @@ create-project-status-update:
     - Target 95% documentation coverage by end of month
 ```
 
-#### Status Indicators
-
-- **`ON_TRACK`**: Progressing as planned, meeting expected targets
-- **`AT_RISK`**: Potential issues identified (blocked items, slower velocity, dependencies)
-- **`OFF_TRACK`**: Behind schedule, requires intervention or re-planning
-- **`COMPLETE`**: Objectives met, no further work needed
-- **`INACTIVE`**: Paused or not actively running
-
-Exposes outputs: `status-update-id`, `project-id`, `status`.
+Status indicators: `ON_TRACK` (progressing as planned), `AT_RISK` (potential issues), `OFF_TRACK` (behind schedule), `COMPLETE` (objectives met), `INACTIVE` (paused). Exposes outputs: `status-update-id`, `project-id`, `status`.
 
 
 ### Pull Request Creation (`create-pull-request:`)
@@ -775,12 +644,7 @@ safe-outputs:
     max: 10                     # max reports per run (default: unlimited)
 ```
 
-**Why Missing Data Matters**
-
-AI agents work best when they acknowledge data gaps instead of inventing information. By explicitly reporting missing data, agents:
-- **Ensure accuracy**: Prevent hallucinations and incorrect outputs
-- **Enable improvement**: Help teams identify gaps in documentation, APIs, or configuration
-- **Demonstrate responsibility**: Show honest behavior that should be encouraged
+AI agents work best acknowledging data gaps instead of inventing information. Reporting missing data prevents hallucinations, helps identify gaps in documentation or configuration, and demonstrates honest behavior.
 
 **Agent Output Format**
 
@@ -797,15 +661,7 @@ AI agents work best when they acknowledge data gaps instead of inventing informa
 **Required Fields**: `data_type`, `reason`  
 **Optional Fields**: `context`, `alternatives`
 
-**Issue Creation**
-
-When `create-issue: true`, the agent creates or updates GitHub issues documenting missing data with:
-- Detailed explanation of what data is needed and why
-- Context about how the data would be used
-- Possible alternatives if the data cannot be provided
-- Encouragement message praising the agent's truthfulness
-
-This rewards honest AI behavior and helps teams improve data accessibility for future agent runs.
+Set `create-issue: true` to create issues documenting missing data with explanations, context, alternatives, and encouragement. This rewards honest AI behavior and helps improve data accessibility.
 
 ### Discussion Creation (`create-discussion:`)
 
@@ -826,26 +682,7 @@ safe-outputs:
 
 #### Fallback to Issue Creation
 
-The `fallback-to-issue` field (default: `true`) automatically falls back to creating an issue when discussion creation fails due to permissions errors. This is useful in repositories where discussions are not enabled or where the workflow lacks the necessary permissions to create discussions.
-
-When fallback is triggered:
-- An issue is created instead of a discussion
-- A note is added to the issue body indicating it was intended to be a discussion
-- The issue includes all the same content as the intended discussion
-
-To disable fallback behavior and fail if discussions cannot be created:
-
-```yaml wrap
-safe-outputs:
-  create-discussion:
-    fallback-to-issue: false
-```
-
-Common scenarios where fallback is useful:
-- Repositories with discussions disabled
-- Insufficient permissions (requires `discussions: write`)
-- Organization policies restricting discussions
-- Testing workflows across different repository configurations
+Set `fallback-to-issue: true` (default) to create an issue when discussion creation fails due to permissions. The issue includes a note indicating it was intended as a discussion. Useful when discussions are disabled, permissions are insufficient, or organization policies restrict discussions. Set to `false` to fail instead of falling back.
 
 ### Close Discussion (`close-discussion:`)
 
@@ -1017,143 +854,15 @@ To respect GitHub API rate limits, the handler automatically enforces a 5-second
 
 #### Best Practices
 
-**1. Always Define Explicit Inputs**
-
-When creating workflows that will be dispatched, explicitly define all required inputs in the `workflow_dispatch` section:
-
-```yaml wrap
----
-on:
-  workflow_dispatch:
-    inputs:
-      task_id:
-        description: "Unique task identifier"
-        required: true
-        type: string
-      priority:
-        description: "Task priority level"
-        required: false
-        type: choice
-        options: [low, medium, high]
-        default: medium
----
-```
-
-This ensures:
-- The MCP tool schema includes all expected parameters
-- The agent knows what information to provide
-- GitHub validates inputs at dispatch time
-
-**2. Use Descriptive Input Descriptions**
-
-Clear descriptions help the AI agent understand what information to provide:
-
-```yaml wrap
-# ✅ GOOD - Clear description
-repository_url:
-  description: "Full GitHub repository URL (e.g., https://github.com/owner/repo)"
-  required: true
-  type: string
-
-# ❌ BAD - Vague description
-repo:
-  description: "Repository"
-  type: string
-```
-
-**3. Use Choice Types for Limited Options**
-
-When inputs have a fixed set of valid values, use `type: choice`:
-
-```yaml wrap
-action:
-  description: "Action to perform"
-  required: true
-  type: choice
-  options: [analyze, fix, report]
-```
-
-This prevents the agent from providing invalid values and makes the interface clearer.
-
-**4. Provide Sensible Defaults**
-
-For optional inputs, provide defaults that work for the most common use case:
-
-```yaml wrap
-timeout:
-  description: "Maximum execution time in minutes"
-  required: false
-  type: number
-  default: 30
-```
+Define explicit `workflow_dispatch` inputs so the MCP tool schema includes expected parameters. Use descriptive descriptions (e.g., "Full GitHub repository URL" not "Repository"). Use `type: choice` for fixed options to prevent invalid values. Provide sensible defaults for optional inputs.
 
 #### Troubleshooting
 
-**Problem: "Workflow file not found"**
+**Workflow file not found:** Ensure file exists in `.github/workflows/`, use name without extension, and compile markdown workflows first: `gh aw compile my-workflow`.
 
-Error: `dispatch-workflow: workflow 'my-workflow' not found in .github/workflows/`
+**Missing workflow_dispatch trigger:** Add `workflow_dispatch:` with inputs to the target workflow's `on:` section.
 
-**Solutions:**
-1. Ensure the workflow file exists in `.github/workflows/`
-2. Use the workflow name without extension (e.g., `my-workflow`, not `my-workflow.md`)
-3. Compile markdown workflows before dispatching: `gh aw compile my-workflow`
-
-**Problem: "Workflow does not support workflow_dispatch trigger"**
-
-Error: `dispatch-workflow: workflow 'my-workflow' does not support workflow_dispatch trigger`
-
-**Solution:** Add `workflow_dispatch` to the `on:` section of the target workflow:
-
-```yaml wrap
-on:
-  push:
-  workflow_dispatch:
-    inputs:
-      # Define your inputs here
-```
-
-**Problem: "Required input not provided"**
-
-The workflow is dispatched but GitHub rejects it due to missing required inputs.
-
-**Solution:** Ensure the target workflow defines its inputs and they match what the agent is providing:
-
-1. Check the target workflow's `workflow_dispatch.inputs` section
-2. Mark required inputs with `required: true`
-3. The agent will automatically know to provide these inputs based on the MCP tool schema
-
-**Problem: "Agent doesn't know what inputs to provide"**
-
-The agent dispatches the workflow but doesn't include necessary inputs.
-
-**Solutions:**
-1. **Define inputs explicitly** in the target workflow's `workflow_dispatch` section
-2. **Add clear descriptions** to help the agent understand what each input is for
-3. **Mark required inputs** with `required: true`
-4. **Update your dispatcher workflow's prompt** to mention specific inputs if needed
-
-**Example of well-defined inputs:**
-
-```yaml wrap
----
-on:
-  workflow_dispatch:
-    inputs:
-      tracker_id:
-        description: "Unique identifier for this orchestration run (e.g., 'run-2024-01-15-001')"
-        required: true
-        type: string
-      target_repos:
-        description: "JSON array of repository names to process (e.g., '[\"repo1\", \"repo2\"]')"
-        required: true
-        type: string
-      dry_run:
-        description: "If true, validate configuration without executing actions"
-        required: false
-        type: boolean
-        default: false
----
-```
+**Required input not provided or agent doesn't know inputs:** Define inputs explicitly in target workflow's `workflow_dispatch.inputs` section with clear descriptions and `required: true` for required fields.
 
 #### Security Considerations
 
@@ -1215,23 +924,10 @@ safe-outputs:
 - `target: "*"` — Requires explicit `issue_number` or `pull_number` in agent output
 - `target: "123"` — Always uses issue/PR #123
 
-**Assignee Filtering:**
 When `allowed` list is configured, existing agent assignees not in the list are removed while regular user assignees are preserved.
 
 > [!TIP]
-> Assignment methods
-> 
-> Use `assign-to-agent` when you need to programmatically assign agents to **existing** issues or PRs through workflow automation. If you're creating new issues and want to assign an agent immediately, use `assignees: copilot` in your [`create-issue`](#issue-creation-create-issue) configuration instead, which is simpler:
-> 
-> ```yaml
-> safe-outputs:
->   create-issue:
->     assignees: copilot  # Assigns agent when creating issue
-> ```
-> 
-> **Important**: Both methods use the **same token** (`GH_AW_AGENT_TOKEN`) and **same GraphQL API** (`replaceActorsForAssignable` mutation) to assign copilot. When you use `assignees: copilot` in create-issue, the copilot assignee is automatically filtered out and assigned in a separate post-step using the agent token and GraphQL, identical to the `assign-to-agent` safe output.
-> 
-> Both methods result in the same outcome as [manually assigning issues to Copilot through the GitHub UI](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent/create-a-pr#assigning-an-issue-to-copilot). See [GitHub Tokens reference](/gh-aw/reference/tokens/#gh_aw_agent_token-agent-assignment) for token configuration details and [GitHub's official Copilot coding agent documentation](https://docs.github.com/en/copilot/concepts/agents/coding-agent/about-coding-agent) for more about the Copilot agent.
+> For new issues, use `assignees: copilot` in [`create-issue`](#issue-creation-create-issue) instead. Both methods use the same token (`GH_AW_AGENT_TOKEN`) and GraphQL API. See [GitHub Tokens reference](/gh-aw/reference/tokens/#gh_aw_agent_token-agent-assignment).
 
 ### Assign to User (`assign-to-user:`)
 
