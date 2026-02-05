@@ -19,22 +19,6 @@ tools:
     max-file-size: 102400  # 100KB
   bash:
     - "*"
-steps:
-  - name: Pre-download workflow logs
-    env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    run: |
-      # Download logs for copilot workflows from last 30 days with JSON output
-      ./gh-aw logs --engine copilot --start-date -30d --json -c 500 > /tmp/gh-aw/copilot-logs.json
-      
-      # Verify the download
-      if [ -f /tmp/gh-aw/copilot-logs.json ]; then
-        echo "✅ Logs downloaded successfully"
-        echo "Total runs: $(jq '. | length' /tmp/gh-aw/copilot-logs.json || echo '0')"
-      else
-        echo "❌ Failed to download logs"
-        exit 1
-      fi
 safe-outputs:
   upload-asset:
   create-discussion:
@@ -47,6 +31,7 @@ imports:
   - copilot-setup-steps.yml    # Import setup steps from copilot-setup-steps.yml
   - shared/reporting.md
   - shared/python-dataviz.md
+  - shared/gh-aw-cli.md
 ---
 
 {{#runtime-import? .github/shared-instructions.md}}
@@ -122,17 +107,31 @@ Create reports that:
 
 ## Phase 1: Data Collection
 
-### Pre-downloaded Workflow Logs
+### Download Workflow Logs
 
-**Important**: The workflow logs have been pre-downloaded for you and are available at `/tmp/gh-aw/copilot-logs.json`.
+**CRITICAL**: You must download the workflow logs using the gh-aw-logs safe-input tool before processing.
 
-This file contains workflow runs from the last 30 days for Copilot-based workflows, in JSON format with detailed metrics including:
-- `TokenUsage`: Total tokens consumed
-- `EstimatedCost`: Cost in USD
-- `Duration`: Run duration
-- `Turns`: Number of agent turns
-- `WorkflowName`: Name of the workflow
-- `CreatedAt`: Timestamp of the run
+Use the gh-aw-logs safe-input tool to download logs:
+
+```
+Use the gh-aw-logs tool with:
+- engine: "copilot"
+- start-date: "-30d"
+- output-dir: "/tmp/gh-aw/workflow-logs"
+```
+
+Then extract the JSON data from the downloaded logs:
+
+```bash
+# Find and parse all aw_info.json files
+find /tmp/gh-aw/workflow-logs -name "aw_info.json" -type f | while read -r info_file; do
+  cat "$info_file"
+done | jq -s '.' > /tmp/gh-aw/copilot-logs.json
+
+# Count total runs
+echo "Total runs found:"
+jq '. | length' /tmp/gh-aw/copilot-logs.json || echo "0"
+```
 
 ### Step 1.1: Verify Data Structure
 
