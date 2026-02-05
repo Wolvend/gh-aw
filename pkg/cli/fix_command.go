@@ -47,6 +47,7 @@ Available codemods:
   • delete-schema-file: Deletes deprecated .github/aw/schemas/agentic-workflow.json
   • delete-old-agents: Deletes old .agent.md files moved to .github/aw/
   • delete-old-templates: Removes old template files from pkg/cli/templates/
+  • delete-aw-md-files: Deletes .github/aw/*.md files (now downloaded from GitHub)
 
 If no workflows are specified, all Markdown files in .github/workflows will be processed.
 
@@ -59,6 +60,7 @@ The command will:
   6. Delete deprecated .github/aw/schemas/agentic-workflow.json file if it exists
   7. Delete old template files from pkg/cli/templates/ (with --write flag)
   8. Delete old .agent.md files that have been moved to .github/aw/ (with --write flag)
+  9. Delete .github/aw/*.md prompt files (now downloaded from GitHub) (with --write flag)
 
 ` + WorkflowIDExplanation + `
 
@@ -250,6 +252,15 @@ func runFixCommand(workflowIDs []string, write bool, verbose bool, workflowDir s
 		if err := deleteOldAgentFiles(verbose); err != nil {
 			fixLog.Printf("Failed to delete old agent files: %v", err)
 			fmt.Fprintf(os.Stderr, "%s\n", console.FormatWarningMessage(fmt.Sprintf("Warning: Failed to delete old agent files: %v", err)))
+		}
+	}
+
+	// Delete agentic workflow prompt files from .github/aw/ (only with --write)
+	if write {
+		fixLog.Print("Deleting agentic workflow prompt files")
+		if err := deleteAgenticWorkflowPromptFiles(verbose); err != nil {
+			fixLog.Printf("Failed to delete agentic workflow prompt files: %v", err)
+			fmt.Fprintf(os.Stderr, "%s\n", console.FormatWarningMessage(fmt.Sprintf("Warning: Failed to delete agentic workflow prompt files: %v", err)))
 		}
 	}
 

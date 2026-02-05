@@ -345,3 +345,54 @@ func deleteOldAgentFiles(verbose bool) error {
 
 	return nil
 }
+
+// deleteAgenticWorkflowPromptFiles deletes .github/aw/*.md files that are now downloaded from GitHub
+// These files are no longer stored in the repository as they are fetched on-demand
+// Exception: github-agentic-workflows.md is kept as the source of truth
+func deleteAgenticWorkflowPromptFiles(verbose bool) error {
+	copilotAgentsLog.Print("Deleting agentic workflow prompt files from .github/aw/")
+
+	gitRoot, err := findGitRoot()
+	if err != nil {
+		return nil // Not in a git repository, skip
+	}
+
+	awDir := filepath.Join(gitRoot, ".github", "aw")
+
+	// Files to delete (all .md files in .github/aw/ except github-agentic-workflows.md)
+	filesToDelete := []string{
+		"agentic-chat.md",
+		"create-agentic-workflow.md",
+		"create-shared-agentic-workflow.md",
+		"debug-agentic-workflow.md",
+		"orchestration.md",
+		"projects.md",
+		"serena-tool.md",
+		"test-dispatcher.md",
+		"update-agentic-workflow.md",
+		"upgrade-agentic-workflows.md",
+	}
+
+	removedCount := 0
+	for _, file := range filesToDelete {
+		path := filepath.Join(awDir, file)
+		if _, err := os.Stat(path); err == nil {
+			if err := os.Remove(path); err != nil {
+				return fmt.Errorf("failed to remove agentic workflow prompt file %s: %w", file, err)
+			}
+			removedCount++
+			copilotAgentsLog.Printf("Removed agentic workflow prompt file: %s", path)
+			if verbose {
+				fmt.Fprintln(os.Stderr, console.FormatInfoMessage(fmt.Sprintf("Removed agentic workflow prompt file: %s", path)))
+			}
+		}
+	}
+
+	if removedCount > 0 {
+		copilotAgentsLog.Printf("Removed %d agentic workflow prompt files", removedCount)
+	} else {
+		copilotAgentsLog.Print("No agentic workflow prompt files to remove")
+	}
+
+	return nil
+}
