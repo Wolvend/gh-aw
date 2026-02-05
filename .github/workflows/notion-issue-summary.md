@@ -17,6 +17,9 @@ tools:
 imports:
   - shared/mcp/notion.md
 strict: true
+safe-outputs:
+  add-comment:
+    max: 1
 ---
 
 # Issue Summary to Notion
