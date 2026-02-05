@@ -1,45 +1,72 @@
-# Workflow Health Dashboard - 2026-02-04T11:32:08Z
+# Workflow Health Dashboard - 2026-02-05T11:32:17Z
 
 ## Overview
-- **Total workflows**: 146 executable workflows
-- **Shared imports**: 39 reusable workflow components
-- **Healthy**: 146 (100% ✅ PERFECT HEALTH)
+- **Total workflows**: 147 (146 executable, 1 shared import)
+- **Healthy**: 143 (97.9%)
 - **Warning**: 0 (0%)
-- **Critical**: 0 (0%)
-- **Compilation coverage**: 146/146 (100% ✅ sustained)
-- **Outdated lock files**: 0 (✅ all recompiled)
-- **Overall health score**: 95/100 (↑ +10 from 85/100)
+- **Critical**: 3 (2.1%)
+- **Inactive**: 0 (0%)
+- **Compilation coverage**: 146/146 (100% ✅)
+- **Overall health score**: 75/100 (↓ -20 from 95/100)
 
-## 🎉 STATUS: EXCELLENT - PERFECT HEALTH ACHIEVED
+## 🚨 STATUS: DEGRADED - ACTION REQUIRED
+
+### Critical Issues 🚨
+
+#### Issue #1: Missing Action Files Breaking Workflows (P1 - High)
+
+**Affected Workflows**: 3 workflows failing
+- Daily Fact About gh-aw
+- Copilot PR Conversation NLP Analysis
+- The Great Escapi
+
+**Root Cause**: Missing JavaScript action files:
+- `/opt/gh-aw/actions/parse_mcp_gateway_log.cjs`
+- `/opt/gh-aw/actions/handle_agent_failure.cjs`
+
+**Error Pattern**:
+```
+Error: Cannot find module '/opt/gh-aw/actions/parse_mcp_gateway_log.cjs'
+```
+
+**Impact**:
+- Workflows using MCP gateway logging cannot complete
+- Agent failure handling is broken
+- 3 workflows consistently failing
+
+**Action Taken**: Issue created for immediate investigation
+
+**Priority**: P1 (Within 24 hours)
 
 ### Health Assessment
 
-**Status: EXCELLENT - PERFECT HEALTH**
+**Status: DEGRADED**
 
 **Health Summary:**
 - ✅ **100% compilation coverage** (146/146 workflows)
-- ✅ **Zero outdated lock files** (all recompiled since last run)
+- ✅ **Zero outdated lock files** (sustained)
 - ✅ **Zero missing lock files** (sustained)
-- ✅ **Zero workflow failures** in last 7 days
-- ✅ **Health score**: 95/100 (↑ +10, upgraded to EXCELLENT)
+- ⚠️ **3 workflow failures** in last 24 hours (NEW)
+- ⚠️ **Health score**: 75/100 (↓ -20, downgraded to DEGRADED)
 
 **Recent Activity (Last 7 Days):**
-- Total runs: 30
-- Action Required: 24 (80.0%) - *Normal for PR review workflows*
-- Skipped: 6 (20.0%) - *Normal for conditional triggers*
-- Failure: 0 (0%) - ✅ **PERFECT SUCCESS RATE**
+- Total runs: 27
+- Success: 14 (51.9%)
+- Failure: 3 (11.1%)
+- Skipped: 10 (37.0%)
+- Success rate: 82.4% (excluding skipped)
 
-**Key Improvements Since Last Run (2026-02-03):**
-- ✅ All 15 previously outdated workflows have been recompiled
-- ✅ No new failures introduced
-- ✅ Health score increased by +10 points (85 → 95)
-- ✅ System stability sustained
+**Key Changes Since Last Run (2026-02-04):**
+- ⚠️ 3 new failures introduced (missing action files)
+- ↓ Health score decreased by -20 points (95 → 75)
+- ⚠️ Success rate dropped from 100% to 82.4%
+- ✅ Compilation coverage maintained at 100%
 
 ## Workflow Statistics
 
 ### Compilation Status
-- **Total .md files**: 146 (excluding 39 shared imports)
-- **Total .lock.yml files**: 145 (1 is a shared import, correctly excluded)
+- **Total .md files**: 147 (146 executable + 1 shared import)
+- **Total .lock.yml files**: 146 (1 shared import correctly excluded)
 - **Missing lock files**: 0
 - **Outdated lock files**: 0 ✅
 - **Compilation success rate**: 100%
@@ -63,96 +90,152 @@
 - **Regular workflows**: 146 (100%)
 - **Campaign orchestrators**: 0
 - **Campaign specs**: 0
-- **Shared imports**: 39 (intentionally not compiled)
+- **Shared imports**: 1 (intentionally not compiled)
 
 ## Recent Workflow Activity
 
 ### Most Active Workflows (Last 7 Days)
 
-1. **Q** - 6 runs (all action_required)
-2. **Scout** - 5 runs (4 action_required, 1 skipped)
-3. **PR Nitpick Reviewer 🔍** - 5 runs (4 action_required, 1 skipped)
-4. **/cloclo** - 5 runs (all skipped)
-5. **Security Review Agent 🔒** - 4 runs (all action_required)
-6. **Grumpy Code Reviewer 🔥** - 4 runs (all action_required)
-7. **Archie** - 1 run (skipped)
+1. **Issue Monster** - 3 runs (all success)
+2. **Agentic Maintenance** - 2 runs (all success)
+3. **Daily Workflow Updater** - 1 run (success)
+4. **Daily Code Metrics** - 1 run (success)
+5. **Typist** - 1 run (success)
+
+### Failed Workflows (Last 24 Hours)
+
+1. **Daily Fact About gh-aw** - 1 failure (missing action files)
+2. **Copilot PR Conversation NLP Analysis** - 1 failure (agent execution)
+3. **The Great Escapi** - 1 failure (agent execution)
 
 ### Conclusion Breakdown
 
-- **action_required**: 24 runs (80%) - Normal status for PR review workflows
-- **skipped**: 6 runs (20%) - Normal status for conditional triggers
-- **failure**: 0 runs (0%) ✅
-- **cancelled**: 0 runs (0%) ✅
-- **timed_out**: 0 runs (0%) ✅
+- **success**: 14 runs (51.9%)
+- **failure**: 3 runs (11.1%)
+- **skipped**: 10 runs (37.0%)
+- **action_required**: 0 runs (0%)
 
-## Previous Issues - Status Update
+## Error Analysis
 
-### Issue #1: Outdated Lock Files (P2 - Medium)
+### Error Pattern: Missing Action Files
 
-**Status**: ✅ RESOLVED
-- **First Detected**: 2026-02-02
-- **Resolution Date**: 2026-02-04
-- **Action Taken**: All 15 workflows recompiled successfully
-- **Verification**: No outdated lock files detected
-- **Impact**: Compilation hygiene restored to 100%
+**Frequency**: 2 workflows affected directly
+**Severity**: High (P1)
+**First Seen**: 2026-02-05
+
+**Error Message**:
+```
+Error: Cannot find module '/opt/gh-aw/actions/parse_mcp_gateway_log.cjs'
+Error: Cannot find module '/opt/gh-aw/actions/handle_agent_failure.cjs'
+```
+
+**Root Cause**:
+- Action files not being copied during setup
+- Possible recent changes to action file structure
+- Missing files in actions/setup/js/ directory
+
+**Affected Workflows**:
+1. Daily Fact About gh-aw (run 21709325824)
+2. Copilot PR Conversation NLP Analysis (run 21707633912) - secondary impact
+3. The Great Escapi (run 21705733653) - secondary impact
+
+**Resolution Steps**:
+1. Verify action files exist in source
+2. Update actions/setup to copy all required files
+3. Add validation to ensure files are present
+4. Test fix on failing workflows
 
 ## Trends
 
-- Overall health score: 95/100 (↑ +10 from last run)
+- Overall health score: 75/100 (↓ -20 from last run)
 - Compilation coverage: 100% (sustained)
-- Recent failure rate: 0% (0/30 runs - ✅ PERFECT)
+- Recent failure rate: 11.1% (3/27 runs - ↑ from 0%)
 - Safe outputs adoption: 93.2% (stable)
-- Outdated lock files: 0 (↓ -15 from last run - RESOLVED)
+- Outdated lock files: 0 (sustained)
 
-**Health Trend**: ↑↑ **SIGNIFICANTLY IMPROVING** (85/100 → 95/100)
+**Health Trend**: ↓ **DEGRADED** (95/100 → 75/100)
 
 ## Actions Taken This Run
 
 - ✅ Analyzed 146 executable workflows
 - ✅ Verified 100% compilation coverage
-- ✅ Confirmed all previously outdated lock files are now up-to-date
-- ✅ Analyzed 30 recent workflow runs (last 7 days)
-- ✅ Detected zero failures (perfect success rate)
-- ✅ Updated health score: 95/100 (↑ +10)
-- ✅ Verified safe outputs adoption at 93.2%
+- ⚠️ Detected 3 new failures (missing action files)
+- ✅ Created issue for missing action files (P1)
+- ✅ Analyzed error logs for root cause
+- ✅ Updated health score: 75/100 (↓ -20)
+- ✅ Documented error patterns and resolution steps
 
 ## Recommendations
 
-### High Priority
-None - System is at peak health
+### High Priority (P1 - Within 24 hours)
+1. **Fix missing action files** (Issue created)
+   - Verify parse_mcp_gateway_log.cjs exists
+   - Verify handle_agent_failure.cjs exists
+   - Update actions/setup to copy all files
+   - Test fix on 3 failing workflows
 
-### Medium Priority
-None - All maintenance items resolved
+### Medium Priority (P2 - This week)
+1. Add validation to ensure all action files are present
+2. Improve error messages when action files are missing
+3. Add health checks for critical action file availability
+4. Document action file dependencies
 
-### Low Priority
-1. Monitor safe outputs adoption for remaining 6.8% of workflows
-2. Continue tracking workflow run success rates
-3. Maintain current health standards
+### Low Priority (P3 - Next sprint)
+1. Add automated testing for action file availability
+2. Monitor safe outputs adoption for remaining 6.8% of workflows
+3. Continue tracking workflow run success rates
 
 ## System Status Summary
 
-### ✅ All Systems Green
+### ⚠️ Degraded Health - Action Required
 
 **Infrastructure Health:**
 - Compilation: 100% ✅
-- Execution: 100% success rate ✅
+- Execution: 82.4% success rate ⚠️ (down from 100%)
 - Safe outputs: 93.2% adoption ✅
 - Lock files: 100% up-to-date ✅
 
 **Quality Metrics:**
-- Zero failures in last 7 days ✅
+- 3 failures in last 24 hours ⚠️ (new)
 - Zero timeout issues ✅
 - Zero permission errors ✅
 - Zero missing lock files ✅
+- Zero outdated lock files ✅
 
-**Operational Excellence:**
-- All previously identified issues resolved ✅
-- No new issues introduced ✅
-- Health score at 95/100 (excellent) ✅
-- System stability sustained ✅
+**Operational Status:**
+- **NEW ISSUE**: Missing action files (P1)
+- Health score at 75/100 (degraded) ⚠️
+- 3 workflows need immediate attention ⚠️
+- 143 workflows operating normally ✅
+
+## Resolution Plan
+
+### Immediate Actions (Next 24 Hours)
+
+1. **Investigate missing files** (ETA: 2 hours)
+   - Check if files exist in repo
+   - Review recent commits
+   - Identify when files were removed/renamed
+
+2. **Fix actions/setup** (ETA: 2 hours)
+   - Update file copy logic
+   - Add validation checks
+   - Test on failing workflows
+
+3. **Verify fix** (ETA: 1 hour)
+   - Manually trigger 3 failing workflows
+   - Confirm successful execution
+   - Monitor for new failures
+
+### Expected Outcome
+
+**Target Health Score**: 95/100 (restored to excellent)  
+**Target Success Rate**: 100% (no failures)  
+**Target Timeline**: Within 24 hours  
 
 ---
-> **Last updated**: 2026-02-04T11:32:08Z  
-> **Next check**: 2026-02-05 (daily schedule)  
-> **Health Trend**: ↑↑ Significantly Improving (85/100 → 95/100)  
-> **Status**: 🎉 **EXCELLENT - PERFECT HEALTH ACHIEVED**
+> **Last updated**: 2026-02-05T11:32:17Z  
+> **Next check**: 2026-02-06 (daily schedule)  
+> **Health Trend**: ↓ Degraded (95/100 → 75/100)  
+> **Status**: 🚨 **DEGRADED - ACTION REQUIRED**  
+> **Priority Action**: Fix missing action files (P1)
