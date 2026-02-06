@@ -184,7 +184,7 @@ func TestRenderAgenticWorkflowsMCP_JSON_Copilot(t *testing.T) {
 		t.Error("Expected 'type': 'stdio' field per MCP Gateway Specification")
 	}
 	if !strings.Contains(output, `"`+constants.AgenticWorkflowsMCPServerID+`": {`) {
-		t.Error("Expected agenticworkflows server ID")
+		t.Error("Expected agentic_workflows server ID")
 	}
 	// Per MCP Gateway Specification v1.0.0, stdio servers MUST use container format
 	// In dev mode, should use locally built image

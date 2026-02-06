@@ -229,7 +229,7 @@ Uses imported agentic-workflows tool.
 
 	workflowData := string(lockFileContent)
 
-	// Verify containerized agenticworkflows server is present (per MCP Gateway Specification v1.0.0)
+	// Verify containerized agentic_workflows server is present (per MCP Gateway Specification v1.0.0)
 	// In dev mode, no entrypoint or entrypointArgs (uses container's defaults)
 	if strings.Contains(workflowData, `"entrypointArgs"`) {
 		t.Error("Did not expect entrypointArgs field in dev mode (uses container's CMD)")

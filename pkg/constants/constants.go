@@ -542,7 +542,8 @@ const SafeInputsMCPServerID = "safeinputs"
 const SafeInputsMCPVersion = "1.0.0"
 
 // AgenticWorkflowsMCPServerID is the identifier for the agentic-workflows MCP server
-const AgenticWorkflowsMCPServerID = "agenticworkflows"
+// Uses snake_case to match MCP Gateway's name normalization
+const AgenticWorkflowsMCPServerID = "agentic_workflows"
 
 // Feature flag identifiers
 const (
