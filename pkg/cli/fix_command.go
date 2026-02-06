@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -26,6 +27,12 @@ type FixConfig struct {
 // RunFix runs the fix command with the given configuration
 func RunFix(config FixConfig) error {
 	return runFixCommand(config.WorkflowIDs, config.Write, config.Verbose, config.WorkflowDir)
+}
+
+// RunFixWithWriter runs the fix command with the given configuration,
+// writing output to the provided writer
+func RunFixWithWriter(w io.Writer, config FixConfig) error {
+	return runFixCommandWithWriter(w, config.WorkflowIDs, config.Write, config.Verbose, config.WorkflowDir)
 }
 
 // NewFixCommand creates the fix command
@@ -116,6 +123,12 @@ func listAvailableCodemods() error {
 
 // runFixCommand runs the fix command on specified or all workflows
 func runFixCommand(workflowIDs []string, write bool, verbose bool, workflowDir string) error {
+	return runFixCommandWithWriter(os.Stderr, workflowIDs, write, verbose, workflowDir)
+}
+
+// runFixCommandWithWriter runs the fix command on specified or all workflows,
+// writing output to the provided writer
+func runFixCommandWithWriter(w io.Writer, workflowIDs []string, write bool, verbose bool, workflowDir string) error {
 	fixLog.Printf("Running fix command: workflowIDs=%v, write=%v, verbose=%v, workflowDir=%s", workflowIDs, write, verbose, workflowDir)
 
 	// Set up workflow directory (using default if not specified)
@@ -149,7 +162,7 @@ func runFixCommand(workflowIDs []string, write bool, verbose bool, workflowDir s
 	}
 
 	if len(files) == 0 {
-		fmt.Fprintln(os.Stderr, console.FormatInfoMessage("No workflow files found."))
+		fmt.Fprintln(w, console.FormatInfoMessage("No workflow files found."))
 		return nil
 	}
 
@@ -165,9 +178,9 @@ func runFixCommand(workflowIDs []string, write bool, verbose bool, workflowDir s
 	for _, file := range files {
 		fixLog.Printf("Processing file: %s", file)
 
-		fixed, appliedFixes, err := processWorkflowFileWithInfo(file, codemods, write, verbose)
+		fixed, appliedFixes, err := processWorkflowFileWithInfo(w, file, codemods, write, verbose)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "%s\n", console.FormatErrorMessage(fmt.Sprintf("Error processing %s: %v", filepath.Base(file), err)))
+			fmt.Fprintf(w, "%s\n", console.FormatErrorMessage(fmt.Sprintf("Error processing %s: %v", filepath.Base(file), err)))
 			continue
 		}
 
@@ -190,49 +203,49 @@ func runFixCommand(workflowIDs []string, write bool, verbose bool, workflowDir s
 	// Update copilot instructions
 	if err := ensureCopilotInstructions(verbose, false); err != nil {
 		fixLog.Printf("Failed to update copilot instructions: %v", err)
-		fmt.Fprintf(os.Stderr, "%s\n", console.FormatWarningMessage(fmt.Sprintf("Warning: Failed to update copilot instructions: %v", err)))
+		fmt.Fprintf(w, "%s\n", console.FormatWarningMessage(fmt.Sprintf("Warning: Failed to update copilot instructions: %v", err)))
 	}
 
 	// Update dispatcher agent
 	if err := ensureAgenticWorkflowsDispatcher(verbose, false); err != nil {
 		fixLog.Printf("Failed to update dispatcher agent: %v", err)
-		fmt.Fprintf(os.Stderr, "%s\n", console.FormatWarningMessage(fmt.Sprintf("Warning: Failed to update dispatcher agent: %v", err)))
+		fmt.Fprintf(w, "%s\n", console.FormatWarningMessage(fmt.Sprintf("Warning: Failed to update dispatcher agent: %v", err)))
 	}
 
 	// Update create workflow prompt
 	if err := ensureCreateWorkflowPrompt(verbose, false); err != nil {
 		fixLog.Printf("Failed to update create workflow prompt: %v", err)
-		fmt.Fprintf(os.Stderr, "%s\n", console.FormatWarningMessage(fmt.Sprintf("Warning: Failed to update workflow creation prompt: %v", err)))
+		fmt.Fprintf(w, "%s\n", console.FormatWarningMessage(fmt.Sprintf("Warning: Failed to update workflow creation prompt: %v", err)))
 	}
 
 	// Update update workflow prompt
 	if err := ensureUpdateWorkflowPrompt(verbose, false); err != nil {
 		fixLog.Printf("Failed to update update workflow prompt: %v", err)
-		fmt.Fprintf(os.Stderr, "%s\n", console.FormatWarningMessage(fmt.Sprintf("Warning: Failed to update workflow update prompt: %v", err)))
+		fmt.Fprintf(w, "%s\n", console.FormatWarningMessage(fmt.Sprintf("Warning: Failed to update workflow update prompt: %v", err)))
 	}
 
 	// Update create shared agentic workflow prompt
 	if err := ensureCreateSharedAgenticWorkflowPrompt(verbose, false); err != nil {
 		fixLog.Printf("Failed to update create shared workflow prompt: %v", err)
-		fmt.Fprintf(os.Stderr, "%s\n", console.FormatWarningMessage(fmt.Sprintf("Warning: Failed to update shared workflow creation prompt: %v", err)))
+		fmt.Fprintf(w, "%s\n", console.FormatWarningMessage(fmt.Sprintf("Warning: Failed to update shared workflow creation prompt: %v", err)))
 	}
 
 	// Update debug workflow prompt
 	if err := ensureDebugWorkflowPrompt(verbose, false); err != nil {
 		fixLog.Printf("Failed to update debug workflow prompt: %v", err)
-		fmt.Fprintf(os.Stderr, "%s\n", console.FormatWarningMessage(fmt.Sprintf("Warning: Failed to update debug workflow prompt: %v", err)))
+		fmt.Fprintf(w, "%s\n", console.FormatWarningMessage(fmt.Sprintf("Warning: Failed to update debug workflow prompt: %v", err)))
 	}
 
 	// Update upgrade agentic workflows prompt
 	if err := ensureUpgradeAgenticWorkflowsPrompt(verbose, false); err != nil {
 		fixLog.Printf("Failed to update upgrade workflows prompt: %v", err)
-		fmt.Fprintf(os.Stderr, "%s\n", console.FormatWarningMessage(fmt.Sprintf("Warning: Failed to update upgrade workflow prompt: %v", err)))
+		fmt.Fprintf(w, "%s\n", console.FormatWarningMessage(fmt.Sprintf("Warning: Failed to update upgrade workflow prompt: %v", err)))
 	}
 
 	// Update Serena tool documentation
 	if err := ensureSerenaTool(verbose, false); err != nil {
 		fixLog.Printf("Failed to update Serena tool documentation: %v", err)
-		fmt.Fprintf(os.Stderr, "%s\n", console.FormatWarningMessage(fmt.Sprintf("Warning: Failed to update Serena tool documentation: %v", err)))
+		fmt.Fprintf(w, "%s\n", console.FormatWarningMessage(fmt.Sprintf("Warning: Failed to update Serena tool documentation: %v", err)))
 	}
 
 	// Delete old template files from pkg/cli/templates/ (only with --write)
@@ -240,7 +253,7 @@ func runFixCommand(workflowIDs []string, write bool, verbose bool, workflowDir s
 		fixLog.Print("Cleaning up old template files")
 		if err := deleteOldTemplateFiles(verbose); err != nil {
 			fixLog.Printf("Failed to delete old template files: %v", err)
-			fmt.Fprintf(os.Stderr, "%s\n", console.FormatWarningMessage(fmt.Sprintf("Warning: Failed to delete old template files: %v", err)))
+			fmt.Fprintf(w, "%s\n", console.FormatWarningMessage(fmt.Sprintf("Warning: Failed to delete old template files: %v", err)))
 		}
 	}
 
@@ -249,7 +262,7 @@ func runFixCommand(workflowIDs []string, write bool, verbose bool, workflowDir s
 		fixLog.Print("Deleting old agent files")
 		if err := deleteOldAgentFiles(verbose); err != nil {
 			fixLog.Printf("Failed to delete old agent files: %v", err)
-			fmt.Fprintf(os.Stderr, "%s\n", console.FormatWarningMessage(fmt.Sprintf("Warning: Failed to delete old agent files: %v", err)))
+			fmt.Fprintf(w, "%s\n", console.FormatWarningMessage(fmt.Sprintf("Warning: Failed to delete old agent files: %v", err)))
 		}
 	}
 
@@ -260,43 +273,43 @@ func runFixCommand(workflowIDs []string, write bool, verbose bool, workflowDir s
 		if write {
 			if err := os.Remove(schemaPath); err != nil {
 				fixLog.Printf("Failed to delete schema file: %v", err)
-				fmt.Fprintf(os.Stderr, "%s\n", console.FormatWarningMessage(fmt.Sprintf("Warning: Failed to delete deprecated schema file: %v", err)))
+				fmt.Fprintf(w, "%s\n", console.FormatWarningMessage(fmt.Sprintf("Warning: Failed to delete deprecated schema file: %v", err)))
 			} else {
 				fixLog.Print("Deleted deprecated schema file")
 				if verbose {
-					fmt.Fprintf(os.Stderr, "%s\n", console.FormatSuccessMessage("Deleted deprecated .github/aw/schemas/agentic-workflow.json"))
+					fmt.Fprintf(w, "%s\n", console.FormatSuccessMessage("Deleted deprecated .github/aw/schemas/agentic-workflow.json"))
 				}
 			}
 		} else {
-			fmt.Fprintf(os.Stderr, "%s\n", console.FormatInfoMessage("Would delete deprecated .github/aw/schemas/agentic-workflow.json"))
+			fmt.Fprintf(w, "%s\n", console.FormatInfoMessage("Would delete deprecated .github/aw/schemas/agentic-workflow.json"))
 		}
 	}
 
 	// Print summary
-	fmt.Fprintln(os.Stderr, "")
+	fmt.Fprintln(w, "")
 	if write {
 		if totalFixed > 0 {
-			fmt.Fprintf(os.Stderr, "%s\n", console.FormatSuccessMessage(fmt.Sprintf("✓ Fixed %d of %d workflow files", totalFixed, totalFiles)))
+			fmt.Fprintf(w, "%s\n", console.FormatSuccessMessage(fmt.Sprintf("✓ Fixed %d of %d workflow files", totalFixed, totalFiles)))
 		} else {
-			fmt.Fprintf(os.Stderr, "%s\n", console.FormatInfoMessage("✓ No fixes needed"))
+			fmt.Fprintf(w, "%s\n", console.FormatInfoMessage("✓ No fixes needed"))
 		}
 	} else {
 		if totalFixed > 0 {
-			fmt.Fprintf(os.Stderr, "%s\n", console.FormatInfoMessage(fmt.Sprintf("Would fix %d of %d workflow files", totalFixed, totalFiles)))
-			fmt.Fprintln(os.Stderr, "")
+			fmt.Fprintf(w, "%s\n", console.FormatInfoMessage(fmt.Sprintf("Would fix %d of %d workflow files", totalFixed, totalFiles)))
+			fmt.Fprintln(w, "")
 
 			// Output as agent prompt
-			fmt.Fprintln(os.Stderr, console.FormatInfoMessage("To fix these issues, run:"))
-			fmt.Fprintln(os.Stderr, "")
-			fmt.Fprintln(os.Stderr, "  gh aw fix --write")
-			fmt.Fprintln(os.Stderr, "")
-			fmt.Fprintln(os.Stderr, console.FormatInfoMessage("Or fix them individually:"))
-			fmt.Fprintln(os.Stderr, "")
+			fmt.Fprintln(w, console.FormatInfoMessage("To fix these issues, run:"))
+			fmt.Fprintln(w, "")
+			fmt.Fprintln(w, "  gh aw fix --write")
+			fmt.Fprintln(w, "")
+			fmt.Fprintln(w, console.FormatInfoMessage("Or fix them individually:"))
+			fmt.Fprintln(w, "")
 			for _, wf := range workflowsNeedingFixes {
-				fmt.Fprintf(os.Stderr, "  gh aw fix %s --write\n", strings.TrimSuffix(wf.File, ".md"))
+				fmt.Fprintf(w, "  gh aw fix %s --write\n", strings.TrimSuffix(wf.File, ".md"))
 			}
 		} else {
-			fmt.Fprintf(os.Stderr, "%s\n", console.FormatInfoMessage("✓ No fixes needed"))
+			fmt.Fprintf(w, "%s\n", console.FormatInfoMessage("✓ No fixes needed"))
 		}
 	}
 
@@ -311,12 +324,12 @@ type workflowFixInfo struct {
 
 // processWorkflowFile processes a single workflow file with all codemods
 func processWorkflowFile(filePath string, codemods []Codemod, write bool, verbose bool) (bool, error) {
-	fixed, _, err := processWorkflowFileWithInfo(filePath, codemods, write, verbose)
+	fixed, _, err := processWorkflowFileWithInfo(os.Stderr, filePath, codemods, write, verbose)
 	return fixed, err
 }
 
 // processWorkflowFileWithInfo processes a single workflow file and returns detailed fix information
-func processWorkflowFileWithInfo(filePath string, codemods []Codemod, write bool, verbose bool) (bool, []string, error) {
+func processWorkflowFileWithInfo(w io.Writer, filePath string, codemods []Codemod, write bool, verbose bool) (bool, []string, error) {
 	fixLog.Printf("Processing workflow file: %s", filePath)
 
 	// Read the file
@@ -360,7 +373,7 @@ func processWorkflowFileWithInfo(filePath string, codemods []Codemod, write bool
 	// If no changes, report and return
 	if !hasChanges {
 		if verbose {
-			fmt.Fprintf(os.Stderr, "%s\n", console.FormatInfoMessage(fmt.Sprintf("  %s - no fixes needed", filepath.Base(filePath))))
+			fmt.Fprintf(w, "%s\n", console.FormatInfoMessage(fmt.Sprintf("  %s - no fixes needed", filepath.Base(filePath))))
 		}
 		return false, nil, nil
 	}
@@ -373,14 +386,14 @@ func processWorkflowFileWithInfo(filePath string, codemods []Codemod, write bool
 			return false, nil, fmt.Errorf("failed to write file: %w", err)
 		}
 
-		fmt.Fprintf(os.Stderr, "%s\n", console.FormatSuccessMessage(fmt.Sprintf("✓ %s", fileName)))
+		fmt.Fprintf(w, "%s\n", console.FormatSuccessMessage(fmt.Sprintf("✓ %s", fileName)))
 		for _, codemodName := range appliedCodemods {
-			fmt.Fprintf(os.Stderr, "    • %s\n", codemodName)
+			fmt.Fprintf(w, "    • %s\n", codemodName)
 		}
 	} else {
-		fmt.Fprintf(os.Stderr, "%s\n", console.FormatWarningMessage(fmt.Sprintf("⚠ %s", fileName)))
+		fmt.Fprintf(w, "%s\n", console.FormatWarningMessage(fmt.Sprintf("⚠ %s", fileName)))
 		for _, codemodName := range appliedCodemods {
-			fmt.Fprintf(os.Stderr, "    • %s\n", codemodName)
+			fmt.Fprintf(w, "    • %s\n", codemodName)
 		}
 	}
 

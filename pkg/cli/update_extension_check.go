@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"strings"
 
@@ -11,22 +12,28 @@ import (
 
 // checkExtensionUpdate checks if a newer version of gh-aw is available
 func checkExtensionUpdate(verbose bool) error {
+	return checkExtensionUpdateWithWriter(os.Stderr, verbose)
+}
+
+// checkExtensionUpdateWithWriter checks if a newer version of gh-aw is available,
+// writing output to the provided writer
+func checkExtensionUpdateWithWriter(w io.Writer, verbose bool) error {
 	if verbose {
-		fmt.Fprintln(os.Stderr, console.FormatVerboseMessage("Checking for gh-aw extension updates..."))
+		fmt.Fprintln(w, console.FormatVerboseMessage("Checking for gh-aw extension updates..."))
 	}
 
 	// Run gh extension upgrade --dry-run to check for updates
 	output, err := workflow.RunGHCombined("Checking for extension updates...", "extension", "upgrade", "github/gh-aw", "--dry-run")
 	if err != nil {
 		if verbose {
-			fmt.Fprintln(os.Stderr, console.FormatWarningMessage(fmt.Sprintf("Failed to check for extension updates: %v", err)))
+			fmt.Fprintln(w, console.FormatWarningMessage(fmt.Sprintf("Failed to check for extension updates: %v", err)))
 		}
 		return nil // Don't fail the whole command if update check fails
 	}
 
 	outputStr := strings.TrimSpace(string(output))
 	if verbose {
-		fmt.Fprintln(os.Stderr, console.FormatVerboseMessage(fmt.Sprintf("Extension update check output: %s", outputStr)))
+		fmt.Fprintln(w, console.FormatVerboseMessage(fmt.Sprintf("Extension update check output: %s", outputStr)))
 	}
 
 	// Parse the output to see if an update is available
@@ -34,15 +41,15 @@ func checkExtensionUpdate(verbose bool) error {
 	lines := strings.Split(outputStr, "\n")
 	for _, line := range lines {
 		if strings.Contains(line, "[agentics]: would have upgraded from") {
-			fmt.Fprintln(os.Stderr, console.FormatInfoMessage(line))
-			fmt.Fprintln(os.Stderr, console.FormatInfoMessage("Run 'gh extension upgrade github/gh-aw' to update"))
+			fmt.Fprintln(w, console.FormatInfoMessage(line))
+			fmt.Fprintln(w, console.FormatInfoMessage("Run 'gh extension upgrade github/gh-aw' to update"))
 			return nil
 		}
 	}
 
 	if strings.Contains(outputStr, "✓ Successfully checked extension upgrades") {
 		if verbose {
-			fmt.Fprintln(os.Stderr, console.FormatSuccessMessage("gh-aw extension is up to date"))
+			fmt.Fprintln(w, console.FormatSuccessMessage("gh-aw extension is up to date"))
 		}
 	}
 

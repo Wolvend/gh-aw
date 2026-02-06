@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -147,6 +148,131 @@ func UpdateActions(allowMajor, verbose bool) error {
 
 		updateLog.Printf("Successfully wrote updated actions-lock.json with %d updates", len(updatedActions))
 		fmt.Fprintln(os.Stderr, console.FormatInfoMessage("Updated actions-lock.json file"))
+	}
+
+	return nil
+}
+
+// UpdateActionsWithWriter updates GitHub Actions versions in .github/aw/actions-lock.json,
+// writing output to the provided writer
+func UpdateActionsWithWriter(w io.Writer, allowMajor, verbose bool) error {
+	updateLog.Print("Starting action updates with writer")
+
+	if verbose {
+		fmt.Fprintln(w, console.FormatInfoMessage("Checking for GitHub Actions updates..."))
+	}
+
+	// Get the path to actions-lock.json
+	actionsLockPath := filepath.Join(".github", "aw", "actions-lock.json")
+
+	// Check if the file exists
+	if _, err := os.Stat(actionsLockPath); os.IsNotExist(err) {
+		if verbose {
+			fmt.Fprintln(w, console.FormatVerboseMessage(fmt.Sprintf("Actions lock file not found: %s", actionsLockPath)))
+		}
+		return nil // Not an error, just skip
+	}
+
+	// Load the current actions lock file
+	data, err := os.ReadFile(actionsLockPath)
+	if err != nil {
+		return fmt.Errorf("failed to read actions lock file: %w", err)
+	}
+
+	var actionsLock actionsLockFile
+	if err := json.Unmarshal(data, &actionsLock); err != nil {
+		return fmt.Errorf("failed to parse actions lock file: %w", err)
+	}
+
+	updateLog.Printf("Loaded %d action entries from actions-lock.json", len(actionsLock.Entries))
+
+	// Track updates
+	var updatedActions []string
+	var failedActions []string
+	var skippedActions []string
+
+	// Update each action
+	for key, entry := range actionsLock.Entries {
+		updateLog.Printf("Checking action: %s@%s", entry.Repo, entry.Version)
+
+		// Check for latest release
+		latestVersion, latestSHA, err := getLatestActionRelease(entry.Repo, entry.Version, allowMajor, verbose)
+		if err != nil {
+			if verbose {
+				fmt.Fprintln(w, console.FormatWarningMessage(fmt.Sprintf("Failed to check %s: %v", entry.Repo, err)))
+			}
+			failedActions = append(failedActions, entry.Repo)
+			continue
+		}
+
+		// Check if update is available
+		if latestVersion == entry.Version && latestSHA == entry.SHA {
+			if verbose {
+				fmt.Fprintln(w, console.FormatVerboseMessage(fmt.Sprintf("%s@%s is up to date", entry.Repo, entry.Version)))
+			}
+			skippedActions = append(skippedActions, entry.Repo)
+			continue
+		}
+
+		// Update the entry
+		updateLog.Printf("Updating %s from %s (%s) to %s (%s)", entry.Repo, entry.Version, entry.SHA[:7], latestVersion, latestSHA[:7])
+		fmt.Fprintln(w, console.FormatSuccessMessage(fmt.Sprintf("Updated %s from %s to %s", entry.Repo, entry.Version, latestVersion)))
+
+		// Delete the old key (which has the old version)
+		delete(actionsLock.Entries, key)
+
+		// Create a new key with the new version
+		newKey := entry.Repo + "@" + latestVersion
+		actionsLock.Entries[newKey] = actionsLockEntry{
+			Repo:    entry.Repo,
+			Version: latestVersion,
+			SHA:     latestSHA,
+		}
+
+		updatedActions = append(updatedActions, entry.Repo)
+	}
+
+	// Show summary
+	fmt.Fprintln(w, "")
+
+	if len(updatedActions) > 0 {
+		fmt.Fprintln(w, console.FormatSuccessMessage(fmt.Sprintf("Updated %d action(s):", len(updatedActions))))
+		for _, action := range updatedActions {
+			fmt.Fprintln(w, console.FormatListItem(action))
+		}
+		fmt.Fprintln(w, "")
+	}
+
+	if len(skippedActions) > 0 && verbose {
+		fmt.Fprintln(w, console.FormatInfoMessage(fmt.Sprintf("%d action(s) already up to date", len(skippedActions))))
+		fmt.Fprintln(w, "")
+	}
+
+	if len(failedActions) > 0 {
+		fmt.Fprintln(w, console.FormatWarningMessage(fmt.Sprintf("Failed to check %d action(s):", len(failedActions))))
+		for _, action := range failedActions {
+			fmt.Fprintf(w, "  %s\n", action)
+		}
+		fmt.Fprintln(w, "")
+	}
+
+	// Save the updated actions lock file if there were any updates
+	if len(updatedActions) > 0 {
+		// Marshal with sorted keys and pretty printing
+		updatedData, err := marshalActionsLockSorted(&actionsLock)
+		if err != nil {
+			return fmt.Errorf("failed to marshal updated actions lock: %w", err)
+		}
+
+		// Add trailing newline for prettier compliance
+		updatedData = append(updatedData, '\n')
+
+		if err := os.WriteFile(actionsLockPath, updatedData, 0644); err != nil {
+			return fmt.Errorf("failed to write updated actions lock file: %w", err)
+		}
+
+		updateLog.Printf("Successfully wrote updated actions-lock.json with %d updates", len(updatedActions))
+		fmt.Fprintln(w, console.FormatInfoMessage("Updated actions-lock.json file"))
 	}
 
 	return nil

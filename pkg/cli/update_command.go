@@ -1,7 +1,10 @@
 package cli
 
 import (
+	"bytes"
+	"context"
 	"fmt"
+	"io"
 	"os"
 
 	"github.com/github/gh-aw/pkg/console"
@@ -184,4 +187,123 @@ func UpdateWorkflowsWithExtensionCheck(workflowNames []string, allowMajor, force
 	}
 
 	return nil
+}
+
+// UpdateWorkflowsWithExtensionCheckContext performs the complete update process with context support.
+// It accepts a context for cancellation and an io.Writer for output capture.
+// This function is designed for concurrent usage and does not modify global state.
+//
+// Parameters:
+//   - ctx: Context for cancellation support
+//   - output: Writer for capturing console output
+//   - workflowNames: List of workflow IDs to update (empty for all)
+//   - allowMajor: Allow major version updates
+//   - force: Force update even if no changes detected
+//   - verbose: Enable verbose output
+//   - engineOverride: Override the AI engine
+//   - createPR: Create a pull request with changes
+//   - workflowsDir: Workflow directory (empty for default)
+//   - noStopAfter: Remove stop-after field
+//   - stopAfter: Override stop-after value
+//   - merge: Merge local changes with upstream
+//   - noActions: Skip GitHub Actions updates
+//
+// Returns:
+//   - Output string containing formatted results
+//   - Error if the update process fails
+func UpdateWorkflowsWithExtensionCheckContext(
+	ctx context.Context,
+	output io.Writer,
+	workflowNames []string,
+	allowMajor, force, verbose bool,
+	engineOverride string,
+	createPR bool,
+	workflowsDir string,
+	noStopAfter bool,
+	stopAfter string,
+	merge bool,
+	noActions bool,
+) (string, error) {
+	updateLog.Printf("Starting update process with context: workflows=%v, allowMajor=%v, force=%v, createPR=%v, merge=%v, noActions=%v", workflowNames, allowMajor, force, createPR, merge, noActions)
+
+	// Create a buffer to capture output
+	var buf bytes.Buffer
+	// Use a multi-writer to write to both the provided output and our buffer
+	w := io.MultiWriter(output, &buf)
+
+	// Check for context cancellation
+	select {
+	case <-ctx.Done():
+		return "", ctx.Err()
+	default:
+	}
+
+	// Step 1: Check for gh-aw extension updates
+	if err := checkExtensionUpdateWithWriter(w, verbose); err != nil {
+		return buf.String(), fmt.Errorf("extension update check failed: %w", err)
+	}
+
+	// Check for context cancellation
+	select {
+	case <-ctx.Done():
+		return buf.String(), ctx.Err()
+	default:
+	}
+
+	// Step 2: Update GitHub Actions versions (unless disabled)
+	if !noActions {
+		if err := UpdateActionsWithWriter(w, allowMajor, verbose); err != nil {
+			return buf.String(), fmt.Errorf("action update failed: %w", err)
+		}
+	}
+
+	// Check for context cancellation
+	select {
+	case <-ctx.Done():
+		return buf.String(), ctx.Err()
+	default:
+	}
+
+	// Step 3: Update workflows from source repositories
+	// Note: Each workflow is compiled immediately after update
+	if err := UpdateWorkflowsWithWriter(w, workflowNames, allowMajor, force, verbose, engineOverride, workflowsDir, noStopAfter, stopAfter, merge); err != nil {
+		return buf.String(), fmt.Errorf("workflow update failed: %w", err)
+	}
+
+	// Check for context cancellation
+	select {
+	case <-ctx.Done():
+		return buf.String(), ctx.Err()
+	default:
+	}
+
+	// Step 4: Apply automatic fixes to updated workflows
+	fixConfig := FixConfig{
+		WorkflowIDs: workflowNames,
+		Write:       true,
+		Verbose:     verbose,
+	}
+	if err := RunFixWithWriter(w, fixConfig); err != nil {
+		updateLog.Printf("Fix command failed (non-fatal): %v", err)
+		// Don't fail the update if fix fails - this is non-critical
+		if verbose {
+			fmt.Fprintln(w, console.FormatWarningMessage(fmt.Sprintf("Warning: automatic fixes failed: %v", err)))
+		}
+	}
+
+	// Check for context cancellation
+	select {
+	case <-ctx.Done():
+		return buf.String(), ctx.Err()
+	default:
+	}
+
+	// Step 5: Optionally create PR if flag is set
+	if createPR {
+		if err := createUpdatePRWithWriter(w, verbose); err != nil {
+			return buf.String(), fmt.Errorf("failed to create PR: %w", err)
+		}
+	}
+
+	return buf.String(), nil
 }

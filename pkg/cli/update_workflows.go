@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -13,6 +14,12 @@ import (
 
 // UpdateWorkflows updates workflows from their source repositories
 func UpdateWorkflows(workflowNames []string, allowMajor, force, verbose bool, engineOverride string, workflowsDir string, noStopAfter bool, stopAfter string, merge bool) error {
+	return UpdateWorkflowsWithWriter(os.Stderr, workflowNames, allowMajor, force, verbose, engineOverride, workflowsDir, noStopAfter, stopAfter, merge)
+}
+
+// UpdateWorkflowsWithWriter updates workflows from their source repositories,
+// writing output to the provided writer
+func UpdateWorkflowsWithWriter(w io.Writer, workflowNames []string, allowMajor, force, verbose bool, engineOverride string, workflowsDir string, noStopAfter bool, stopAfter string, merge bool) error {
 	updateLog.Printf("Scanning for workflows with source field: dir=%s, filter=%v, merge=%v", workflowsDir, workflowNames, merge)
 
 	// Use provided workflows directory or default
@@ -35,7 +42,7 @@ func UpdateWorkflows(workflowNames []string, allowMajor, force, verbose bool, en
 		return fmt.Errorf("no workflows found with source field")
 	}
 
-	fmt.Fprintln(os.Stderr, console.FormatInfoMessage(fmt.Sprintf("Found %d workflow(s) to update", len(workflows))))
+	fmt.Fprintln(w, console.FormatInfoMessage(fmt.Sprintf("Found %d workflow(s) to update", len(workflows))))
 
 	// Track update results
 	var successfulUpdates []string
@@ -54,7 +61,7 @@ func UpdateWorkflows(workflowNames []string, allowMajor, force, verbose bool, en
 	}
 
 	// Show summary
-	showUpdateSummary(successfulUpdates, failedUpdates)
+	showUpdateSummaryWithWriter(w, successfulUpdates, failedUpdates)
 
 	if len(successfulUpdates) == 0 {
 		return fmt.Errorf("no workflows were successfully updated")

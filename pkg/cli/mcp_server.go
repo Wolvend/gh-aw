@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -870,35 +871,48 @@ Returns formatted text output showing:
 		default:
 		}
 
-		// Build command arguments
-		cmdArgs := []string{"update"}
+		mcpLog.Printf("Executing update tool: workflows=%v, major=%v, force=%v", args.Workflows, args.Major, args.Force)
 
-		// Add workflow IDs if specified
-		cmdArgs = append(cmdArgs, args.Workflows...)
-
-		// Add optional flags
-		if args.Major {
-			cmdArgs = append(cmdArgs, "--major")
-		}
-		if args.Force {
-			cmdArgs = append(cmdArgs, "--force")
-		}
-
-		// Execute the CLI command
-		cmd := execCmd(ctx, cmdArgs...)
-		output, err := cmd.CombinedOutput()
+		// Call the update function directly instead of spawning subprocess
+		// Use a bytes.Buffer to capture output for the MCP response
+		var outputBuf bytes.Buffer
+		
+		// Note: The update function requires full parameters, so we set defaults for unspecified ones:
+		// - verbose: false (MCP server doesn't need verbose output)
+		// - engineOverride: "" (no engine override)
+		// - createPR: false (don't create PR from MCP server)
+		// - workflowsDir: "" (use default .github/workflows)
+		// - noStopAfter: false (keep stop-after fields)
+		// - stopAfter: "" (don't override stop-after)
+		// - merge: false (don't merge, just update)
+		// - noActions: false (update actions by default)
+		outputStr, err := UpdateWorkflowsWithExtensionCheckContext(
+			ctx,
+			&outputBuf,
+			args.Workflows,
+			args.Major,    // allowMajor
+			args.Force,    // force
+			false,         // verbose
+			"",            // engineOverride
+			false,         // createPR
+			"",            // workflowsDir
+			false,         // noStopAfter
+			"",            // stopAfter
+			false,         // merge
+			false,         // noActions
+		)
 
 		if err != nil {
 			return nil, nil, &jsonrpc.Error{
 				Code:    jsonrpc.CodeInternalError,
 				Message: "failed to update workflows",
-				Data:    mcpErrorData(map[string]any{"error": err.Error(), "output": string(output)}),
+				Data:    mcpErrorData(map[string]any{"error": err.Error(), "output": outputStr}),
 			}
 		}
 
 		return &mcp.CallToolResult{
 			Content: []mcp.Content{
-				&mcp.TextContent{Text: string(output)},
+				&mcp.TextContent{Text: outputStr},
 			},
 		}, nil, nil
 	})

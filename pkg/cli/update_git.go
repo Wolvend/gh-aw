@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"io"
 	"math/rand"
 	"os"
 	"os/exec"
@@ -33,6 +34,12 @@ func runGitCommand(args ...string) error {
 
 // createUpdatePR creates a pull request with the workflow changes
 func createUpdatePR(verbose bool) error {
+	return createUpdatePRWithWriter(os.Stderr, verbose)
+}
+
+// createUpdatePRWithWriter creates a pull request with the workflow changes,
+// writing output to the provided writer
+func createUpdatePRWithWriter(w io.Writer, verbose bool) error {
 	// Check if GitHub CLI is available
 	if !isGHCLIAvailable() {
 		return fmt.Errorf("GitHub CLI (gh) is required for PR creation but not found in PATH")
@@ -45,12 +52,12 @@ func createUpdatePR(verbose bool) error {
 	}
 
 	if !hasChanges {
-		fmt.Fprintln(os.Stderr, console.FormatInfoMessage("No changes to create PR for"))
+		fmt.Fprintln(w, console.FormatInfoMessage("No changes to create PR for"))
 		return nil
 	}
 
 	if verbose {
-		fmt.Fprintln(os.Stderr, console.FormatVerboseMessage("Creating pull request with workflow updates..."))
+		fmt.Fprintln(w, console.FormatVerboseMessage("Creating pull request with workflow updates..."))
 	}
 
 	// Create a branch name with timestamp
@@ -86,8 +93,8 @@ func createUpdatePR(verbose bool) error {
 		return fmt.Errorf("failed to create PR: %w\nOutput: %s", err, string(output))
 	}
 
-	fmt.Fprintln(os.Stderr, console.FormatSuccessMessage("Successfully created pull request"))
-	fmt.Fprintln(os.Stderr, console.FormatInfoMessage(strings.TrimSpace(string(output))))
+	fmt.Fprintln(w, console.FormatSuccessMessage("Successfully created pull request"))
+	fmt.Fprintln(w, console.FormatInfoMessage(strings.TrimSpace(string(output))))
 
 	return nil
 }
