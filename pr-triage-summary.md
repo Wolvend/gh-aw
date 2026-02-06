@@ -1,33 +1,38 @@
-# PR Triage Summary - 2026-02-06
+# PR Triage Summary - February 6, 2026
 
-**Run ID:** 21734096398  
-**Total PRs Triaged:** 2  
-**Status:** ✅ Complete
+**Run ID:** 21741023374  
+**Date:** 2026-02-06T06:25:00Z  
+**Total PRs Triaged:** 2
 
 ## Quick Stats
 
-- **Fast-track:** 1 PR (#13920)
-- **Defer:** 1 PR (#14007)
-- **Auto-merge:** 0 PRs
-- **Batch Review:** 0 PRs
-- **Close:** 0 PRs
+| Metric | Count |
+|--------|-------|
+| Total Open Agent PRs | 2 |
+| High Priority (70-100) | 1 |
+| Medium Priority (40-69) | 1 |
+| Fast-track Needed | 1 |
+| Deferred (Draft) | 1 |
 
-## Priority Distribution
+## PRs by Priority
 
-- High (70-100): 1 PR
-- Medium (40-69): 1 PR
-- Low (0-39): 0 PRs
+### 🔴 High Priority (78/100)
+- **#13920** - Fix firewall SSL-bump field extraction - **fast_track**
 
-## Recent Trends
+### 🟡 Medium Priority (53/100)
+- **#14062** - Fix dispatch_workflow PR branch ref - **defer** (draft)
 
-Compared to previous run (21723414047):
-- Total PRs decreased: 3 → 2
-- PR #13969 (draft, fast-track) - closed or merged
-- PR #13859 (draft, fast-track) - closed or merged
-- Both remaining PRs are from Copilot Agent workflow
+## Action Items
 
-## Next Actions
+1. **Fast-track #13920** - Monitor CI, review once passing
+2. **Wait for #14062** - Mark as ready for review
 
-1. **Fast-track #13920** once CI passes - critical bug fix
-2. **Monitor #14007** - wait for draft to be marked ready
-3. Next triage run recommended in 6 hours
+## Trends
+
+- Both PRs are bug fixes (100%)
+- Both PRs are high-risk (security-sensitive code)
+- Average priority: 65.5/100
+- Good test coverage across all PRs
+
+---
+*Last updated: 2026-02-06T06:25:00Z*
