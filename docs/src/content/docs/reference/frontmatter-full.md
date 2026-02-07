@@ -1102,7 +1102,11 @@ sandbox:
 # This field supports multiple formats (oneOf):
 
 # Option 1: List of plugins to install. Each item can be either a repository slug
+<<<<<<< HEAD
 # string (e.g., 'org/repo') or an object with url and optional MCP configuration.
+=======
+# string (e.g., 'org/repo') or an object with id and optional MCP configuration.
+>>>>>>> origin/main
 plugins: []
   # Array items: undefined
 
@@ -1110,7 +1114,11 @@ plugins: []
 # strings or objects with MCP configuration.
 plugins:
   # List of plugins to install. Each item can be either a repository slug string or
+<<<<<<< HEAD
   # an object with url and optional MCP configuration.
+=======
+  # an object with id and optional MCP configuration.
+>>>>>>> origin/main
   repos: []
 
   # Custom GitHub token expression to use for plugin installation. Overrides the

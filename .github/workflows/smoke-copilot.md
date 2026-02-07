@@ -15,8 +15,11 @@ permissions:
   actions: read
 name: Smoke Copilot
 engine: copilot
+<<<<<<< HEAD
 plugins:
   - explanatory-output-style@claude-plugins-official
+=======
+>>>>>>> origin/main
 imports:
   - shared/mood.md
   - shared/gh.md

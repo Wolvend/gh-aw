@@ -30,7 +30,10 @@ func NewClaudeEngine() *ClaudeEngine {
 			supportsWebFetch:       true, // Claude has built-in WebFetch support
 			supportsWebSearch:      true, // Claude has built-in WebSearch support
 			supportsFirewall:       true, // Claude supports network firewalling via AWF
+<<<<<<< HEAD
 			supportsPlugins:        true, // Claude supports plugin installation
+=======
+>>>>>>> origin/main
 		},
 	}
 }

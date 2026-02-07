@@ -107,8 +107,11 @@ Specifies plugins to install before workflow execution. Plugins are installed us
 plugins:
   - github/test-plugin
   - acme/custom-tools
+<<<<<<< HEAD
   - anthropics/claude-code/plugins/explanatory-output-style
   - pyright-lsp@claude-plugins-official
+=======
+>>>>>>> origin/main
 ```
 
 **Object format** (with custom token):
@@ -120,12 +123,15 @@ plugins:
   github-token: ${{ secrets.CUSTOM_PLUGIN_TOKEN }}
 ```
 
+<<<<<<< HEAD
 **Plugin identifier formats:**
 - **GitHub repository**: `org/repo` (e.g., `github/test-plugin`)
 - **Sub-plugin path**: `org/repo/path/to/plugin` (e.g., `anthropics/claude-code/plugins/explanatory-output-style`)
 - **Marketplace reference**: `plugin-name@marketplace` (e.g., `pyright-lsp@claude-plugins-official`)
 - **Repository with marketplace**: `org/repo@marketplace` (e.g., `anthropics/claude-code@anthropic-plugins`)
 
+=======
+>>>>>>> origin/main
 **Token precedence** for plugin installation (highest to lowest):
 1. Custom `plugins.github-token` from object format
 2. Custom top-level `github-token`
@@ -133,7 +139,11 @@ plugins:
 4. `${{ secrets.GH_AW_GITHUB_TOKEN }}`
 5. `${{ secrets.GITHUB_TOKEN }}` (default)
 
+<<<<<<< HEAD
 The compiler generates installation steps that run after the engine CLI is installed but before workflow execution begins.
+=======
+Each plugin repository must be specified in `org/repo` format. The compiler generates installation steps that run after the engine CLI is installed but before workflow execution begins.
+>>>>>>> origin/main
 
 ### Runtimes (`runtimes:`)
 
@@ -489,7 +499,11 @@ steps:
 Use custom steps to precompute data, filter triggers, or prepare context for AI agents. See [Deterministic & Agentic Patterns](/gh-aw/guides/deterministic-agentic-patterns/) for combining computation with AI reasoning.
 
 > [!CAUTION]
+<<<<<<< HEAD
 > Security Notice: Custom steps run OUTSIDE the firewall sandbox. These steps execute with standard GitHub Actions security but do NOT have the network egress controls that protect the agent job. Do not run agentic compute or untrusted AI execution in custom steps—use them only for deterministic data preparation, preprocessing, or filtering.
+=======
+> Security Notice: Custom steps run OUTSIDE the firewall sandbox. These steps execute with standard GitHub Actions security but do NOT have the network egress controls that protect the agent job. Do not run agentic compute or untrusted AI execution in custom steps - use them only for deterministic data preparation, preprocessing, or filtering.
+>>>>>>> origin/main
 
 ## Post-Execution Steps (`post-steps:`)
 
@@ -509,7 +523,11 @@ post-steps:
 Useful for artifact uploads, summaries, cleanup, or triggering downstream workflows.
 
 > [!CAUTION]
+<<<<<<< HEAD
 > Security Notice: Post-execution steps run OUTSIDE the firewall sandbox. These steps execute with standard GitHub Actions security but do NOT have the network egress controls that protect the agent job. Do not run agentic compute or untrusted AI execution in post-steps—use them only for deterministic cleanup, artifact uploads, or notifications.
+=======
+> Security Notice: Post-execution steps run OUTSIDE the firewall sandbox. These steps execute with standard GitHub Actions security but do NOT have the network egress controls that protect the agent job. Do not run agentic compute or untrusted AI execution in post-steps - use them only for deterministic cleanup, artifact uploads, or notifications.
+>>>>>>> origin/main
 
 ## Custom Jobs (`jobs:`)
 
@@ -530,7 +548,11 @@ jobs:
 The agentic execution job waits for all custom jobs to complete. Custom jobs can share data through artifacts or job outputs. See [Deterministic & Agentic Patterns](/gh-aw/guides/deterministic-agentic-patterns/) for multi-job workflows.
 
 > [!CAUTION]
+<<<<<<< HEAD
 > Security Notice: Custom jobs run OUTSIDE the firewall sandbox. These jobs execute with standard GitHub Actions security but do NOT have the network egress controls that protect the agent job. Do not run agentic compute or untrusted AI execution in custom jobs—use them only for deterministic preprocessing, data fetching, or static analysis.
+=======
+> Security Notice: Custom jobs run OUTSIDE the firewall sandbox. These jobs execute with standard GitHub Actions security but do NOT have the network egress controls that protect the agent job. Do not run agentic compute or untrusted AI execution in custom jobs - use them only for deterministic preprocessing, data fetching, or static analysis.
+>>>>>>> origin/main
 
 ### Job Outputs
 

@@ -76,7 +76,11 @@ bots: ["dependabot[bot]", "github-actions[bot]"]
 
 ### Fork Protection
 
+<<<<<<< HEAD
 Unlike issue/PR triggers, `workflow_dispatch` only executes in the repository where it's defined—forks cannot trigger workflows in the parent repository. This provides inherent protection against fork-based attacks.
+=======
+Unlike issue/PR triggers, `workflow_dispatch` only executes in the repository where it's defined-forks cannot trigger workflows in the parent repository. This provides inherent protection against fork-based attacks.
+>>>>>>> origin/main
 
 ### Environment Approval Gates
 
@@ -332,7 +336,11 @@ The workflow runs with your branch's code and state. Safe outputs (issues, PRs, 
 
 ### Input Design
 
+<<<<<<< HEAD
 Use descriptive input names (`analysis_depth` not `depth`) and provide helpful descriptions to guide users. Set sensible defaults for optional inputs and use `choice` type to constrain options. Avoid creating more than 5 inputs as this becomes overwhelming. Keep truly required inputs minimal—if a default works, make it optional.
+=======
+Use descriptive input names (`analysis_depth` not `depth`) and provide helpful descriptions to guide users. Set sensible defaults for optional inputs and use `choice` type to constrain options. Avoid creating more than 5 inputs as this becomes overwhelming. Keep truly required inputs minimal-if a default works, make it optional.
+>>>>>>> origin/main
 
 ### Development and Testing
 
@@ -340,7 +348,11 @@ Include `workflow_dispatch:` in all workflows during development. Test with tria
 
 ### Security
 
+<<<<<<< HEAD
 Use `roles:` to restrict sensitive operations and `manual-approval:` for production workflows. Validate and sanitize all string inputs in workflow logic. Never pass secrets or credentials via inputs—trust input values only after validation. Document who should run which workflows and review run history regularly.
+=======
+Use `roles:` to restrict sensitive operations and `manual-approval:` for production workflows. Validate and sanitize all string inputs in workflow logic. Never pass secrets or credentials via inputs-trust input values only after validation. Document who should run which workflows and review run history regularly.
+>>>>>>> origin/main
 
 ### Combining Triggers
 

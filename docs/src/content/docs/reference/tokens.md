@@ -326,7 +326,11 @@ gh aw secrets set COPILOT_GITHUB_TOKEN --value "YOUR_COPILOT_PAT"
 
 **Type**: Personal Access Token (user must configure)
 
+<<<<<<< HEAD
 Specialized token for `assign-to-agent:` safe outputs that programmatically assign GitHub Copilot agents to issues or pull requests. This is distinct from the standard GitHub UI workflow for [assigning issues to Copilot](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent/create-a-pr#assigning-an-issue-to-copilot)—this token is used for automated agent assignment through workflow safe outputs.
+=======
+Specialized token for `assign-to-agent:` safe outputs that programmatically assign GitHub Copilot agents to issues or pull requests. This is distinct from the standard GitHub UI workflow for [assigning issues to Copilot](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent/create-a-pr#assigning-an-issue-to-copilot) - this token is used for automated agent assignment through workflow safe outputs.
+>>>>>>> origin/main
 
 **Required for**:
 

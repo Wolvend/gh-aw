@@ -392,7 +392,11 @@ imports:
 Handle the issue and notify via Slack and Jira.
 ```
 
+<<<<<<< HEAD
 Jobs with duplicate names cause compilation errors—rename to resolve conflicts.
+=======
+Jobs with duplicate names cause compilation errors - rename to resolve conflicts.
+>>>>>>> origin/main
 
 ## Best Practices
 

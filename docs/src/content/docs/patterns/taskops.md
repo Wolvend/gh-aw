@@ -73,7 +73,11 @@ Performs deep research investigations using multiple research MCPs (Tavily, arXi
 
 **Research Agent Design**: Schedule appropriately (daily for critical metrics, weekly for comprehensive analysis). Use cache memory to store historical data and identify trends. Focus each research agent on one specific angle or concern, ensure reports lead to concrete recommendations, and only create reports when findings exceed meaningful thresholds.
 
+<<<<<<< HEAD
 **Planning Phase**: Review carefully—not all research findings require immediate action. Prioritize high-impact issues first, right-size tasks for AI agent execution with unambiguous success criteria, and reference the parent research report for full context.
+=======
+**Planning Phase**: Review carefully - not all research findings require immediate action. Prioritize high-impact issues first, right-size tasks for AI agent execution with unambiguous success criteria, and reference the parent research report for full context.
+>>>>>>> origin/main
 
 **Assignment Phase**: Consider dependencies when assigning multiple issues sequentially or in parallel. Recognize that some tasks are better suited for human developers. Always review AI-generated code before merging and refine prompts based on agent performance.
 

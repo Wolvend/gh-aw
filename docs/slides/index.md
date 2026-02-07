@@ -15,6 +15,7 @@ https://github.com/github/gh-aw
 
 # Continuous Integration to Continuous AI
 
+<<<<<<< HEAD
 - **Accessibility review** — Automated WCAG compliance checks
 
 - **Documentation** — Auto-generate API docs and README files
@@ -26,6 +27,19 @@ https://github.com/github/gh-aw
 - **Bundle analysis** — Monitor package size and dependencies
 
 - **Issue triage** — Automated labeling and prioritization
+=======
+- **Accessibility review** - Automated WCAG compliance checks
+
+- **Documentation** - Auto-generate API docs and README files
+
+- **Code review** - AI-powered PR analysis and suggestions
+
+- **Test improvement** - Identify missing test coverage
+
+- **Bundle analysis** - Monitor package size and dependencies
+
+- **Issue triage** - Automated labeling and prioritization
+>>>>>>> origin/main
 
 > https://githubnext.com/projects/continuous-ai/
 
@@ -38,6 +52,7 @@ https://github.com/github/gh-aw/issues/1920
 # Evolution: LLMs to SWE Agents
 ## From code completion to autonomous workflows
 
+<<<<<<< HEAD
 **2021: GitHub Copilot** — AI-powered code completion
 
 **2022: ChatGPT** — Conversational AI assistant
@@ -45,6 +60,15 @@ https://github.com/github/gh-aw/issues/1920
 **2023: LLMs & Web UI Generators** — Prompt to Web App
 
 **2024: Agent CLIs** — Claude Code: File edit, bash
+=======
+**2021: GitHub Copilot** - AI-powered code completion
+
+**2022: ChatGPT** - Conversational AI assistant
+
+**2023: LLMs & Web UI Generators** - Prompt to Web App
+
+**2024: Agent CLIs** - Claude Code: File edit, bash
+>>>>>>> origin/main
 
 **2025: MCP, SKILLS.md** - Unified tooling
 

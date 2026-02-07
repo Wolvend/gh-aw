@@ -480,6 +480,7 @@ func RenderTableAsJSON(config TableConfig) (string, error) {
 	return string(jsonBytes), nil
 }
 
+<<<<<<< HEAD
 // ClearScreen clears the terminal screen if stderr is a TTY
 // Uses ANSI escape codes for cross-platform compatibility
 func ClearScreen() {
@@ -496,6 +497,8 @@ func ClearLine() {
 	}
 }
 
+=======
+>>>>>>> origin/main
 // TreeNode represents a node in a hierarchical tree structure
 type TreeNode struct {
 	Value    string
