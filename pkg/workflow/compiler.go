@@ -88,8 +88,8 @@ func (c *Compiler) CompileWorkflow(markdownPath string) error {
 			// Already formatted, return as-is
 			return err
 		}
-		// Otherwise, create a basic formatted error and wrap the cause
-		return formatCompilerError(markdownPath, "error", "failed to parse workflow file", err)
+		// Otherwise, create a basic formatted error (don't wrap - this creates user-facing errors)
+		return formatCompilerError(markdownPath, "error", err.Error(), nil)
 	}
 
 	return c.CompileWorkflowData(workflowData, markdownPath)
