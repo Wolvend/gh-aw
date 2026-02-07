@@ -1,100 +1,69 @@
 {
-  "run_date": "2026-02-06T18:23:00.102356+00:00",
-  "run_id": "21761210128",
-  "total_prs_triaged": 2,
+  "run_date": "2026-02-07T00:37:04.738Z",
+  "run_id": "21770845137",
+  "total_prs_triaged": 1,
   "results": [
     {
-      "number": 14189,
-      "title": "Teach create workflow agent to discover CLI automation before manual configuration",
-      "url": "https://github.com/github/gh-aw/pull/14189",
+      "number": 14227,
+      "title": "Review Dependabot npm PRs for docs/package.json bundle",
+      "url": "https://github.com/github/gh-aw/pull/14227",
       "author": "Copilot",
-      "workflow": "Create Agentic Workflow",
+      "workflow": "Dependabot Project Manager",
       "draft": true,
-      "created_at": "2026-02-06T16:54:57Z",
-      "updated_at": "2026-02-06T18:08:47Z",
-      "changed_files": 2,
-      "additions": 12,
-      "deletions": 1,
-      "comments": 4,
-      "commits": 5,
+      "created_at": "2026-02-06T21:05:56Z",
+      "updated_at": "2026-02-06T21:19:49Z",
+      "changed_files": 6,
+      "additions": 833,
+      "deletions": 0,
+      "comments": 0,
+      "commits": 6,
       "ci_status": "pending",
-      "mergeable_state": "unknown",
-      "fixes_issue": null,
-      "labels": [],
-      "body": "Improve Create Workflow Agent to Discover CLI Tools. Added concise CLI automation discovery guidance to the create workflow agent.",
+      "mergeable_state": "unstable",
+      "fixes_issue": 14226,
+      "labels": ["pr-type:docs", "pr-risk:low", "pr-priority:low", "pr-action:defer", "pr-agent:dependabot-project-manager"],
+      "body": "Reviewed and approved Dependabot dependency updates for `/docs/package.json`",
       "files": [
-        ".github/aw/create-agentic-workflow.md",
-        ".github/aw/projects.md"
+        "DEPENDABOT_ACTIONS.md",
+        "DEPENDABOT_REVIEW_2026_02_06.md",
+        "FINAL_REVIEW_SUMMARY.md",
+        "REVIEW_README.md",
+        "TRACKING_ISSUE_UPDATE.md",
+        "scripts/merge_dependabot_prs.sh"
       ],
       "category": "docs",
       "risk": "low",
       "action": "defer",
-      "action_explanation": "Draft or low priority - can wait for more development",
-      "impact_score": 20,
-      "impact_rationale": "Documentation update",
-      "urgency_score": 0,
-      "urgency_rationale": "Recently created",
-      "quality_score": 8,
-      "quality_rationale": "CI pending, good description, draft status",
-      "priority_score": 28,
-      "age_hours": 1.5,
-      "age_days": 0.06
-    },
-    {
-      "number": 14182,
-      "title": "Add Dependabot Project Manager workflow with bundling and Copilot assignment",
-      "url": "https://github.com/github/gh-aw/pull/14182",
-      "author": "Copilot",
-      "workflow": "Create Agentic Workflow",
-      "draft": true,
-      "created_at": "2026-02-06T16:37:22Z",
-      "updated_at": "2026-02-06T18:13:26Z",
-      "changed_files": 2,
-      "additions": 1799,
-      "deletions": 0,
-      "comments": 4,
-      "commits": 4,
-      "ci_status": "pending",
-      "mergeable_state": "unknown",
-      "fixes_issue": null,
-      "labels": [],
-      "body": "Automates Dependabot alert triage by bundling alerts by runtime+manifest, tracking them on GitHub Projects, and assigning to Copilot for remediation.",
-      "files": [
-        ".github/workflows/dependabot-project-manager.md",
-        ".github/workflows/dependabot-project-manager.lock.yml"
-      ],
-      "category": "feature",
-      "risk": "high",
-      "action": "defer",
-      "action_explanation": "Draft or low priority - can wait for more development",
-      "impact_score": 35,
-      "impact_rationale": "Large feature addition",
-      "urgency_score": 0,
-      "urgency_rationale": "Recently created",
-      "quality_score": 8,
-      "quality_rationale": "CI pending, good description, draft status",
-      "priority_score": 43,
-      "age_hours": 1.8,
-      "age_days": 0.07
+      "action_explanation": "PR is in draft status and was just created. Quality score is fair (10/20). While the documentation is comprehensive, this is low-priority infrastructure work that can wait for the author to mark it ready for review.",
+      "impact_score": 15,
+      "impact_rationale": "Documentation and automation for Dependabot review process. Helpful but not critical.",
+      "urgency_score": 5,
+      "urgency_rationale": "Very recent PR (3.5 hours old). Still in draft. No immediate urgency.",
+      "quality_score": 10,
+      "quality_rationale": "Good description with detailed analysis. CI status pending. Draft status.",
+      "priority_score": 30,
+      "age_hours": 3.5,
+      "age_days": 0.15
     }
   ],
   "statistics": {
-    "total_prs_triaged": 2,
+    "total_prs_triaged": 1,
     "by_category": {
-      "docs": 1,
-      "feature": 1
+      "docs": 1
     },
     "by_risk": {
-      "low": 1,
-      "high": 1
+      "low": 1
     },
     "by_priority": {
       "high": 0,
-      "medium": 1,
+      "medium": 0,
       "low": 1
     },
     "by_action": {
-      "defer": 2
+      "defer": 1
     }
-  }
+  },
+  "auto_merge_candidates": [],
+  "fast_track_needed": [],
+  "batches": {},
+  "close_candidates": []
 }
