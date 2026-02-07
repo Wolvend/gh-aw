@@ -617,21 +617,74 @@ async function updateProject(output, temporaryIdMap = new Map(), githubClient = 
       }
 
       const draftBody = typeof output.draft_body === "string" ? output.draft_body : undefined;
-      const result = await github.graphql(
-        `mutation($projectId: ID!, $title: String!, $body: String) {
-          addProjectV2DraftIssue(input: {
-            projectId: $projectId,
-            title: $title,
-            body: $body
-          }) {
-            projectItem {
-              id
+
+      // Check if a draft issue with this title already exists on the board
+      const existingDraftItem = await (async function (projectId, title) {
+        let hasNextPage = true;
+        let endCursor = null;
+
+        while (hasNextPage) {
+          const result = await github.graphql(
+            `query($projectId: ID!, $after: String) {
+              node(id: $projectId) {
+                ... on ProjectV2 {
+                  items(first: 100, after: $after) {
+                    nodes {
+                      id
+                      content {
+                        ... on Issue {
+                          id
+                        }
+                        ... on PullRequest {
+                          id
+                        }
+                        ... on DraftIssue {
+                          id
+                          title
+                        }
+                      }
+                    }
+                    pageInfo {
+                      hasNextPage
+                      endCursor
+                    }
+                  }
+                }
+              }
+            }`,
+            { projectId, after: endCursor }
+          );
+
+          const found = result.node.items.nodes.find(item => item.content && item.content.title === title);
+          if (found) return found;
+
+          hasNextPage = result.node.items.pageInfo.hasNextPage;
+          endCursor = result.node.items.pageInfo.endCursor;
+        }
+        return null;
+      })(projectId, draftTitle);
+
+      let itemId;
+      if (existingDraftItem) {
+        itemId = existingDraftItem.id;
+        core.info("✓ Draft issue already on board");
+      } else {
+        const result = await github.graphql(
+          `mutation($projectId: ID!, $title: String!, $body: String) {
+            addProjectV2DraftIssue(input: {
+              projectId: $projectId,
+              title: $title,
+              body: $body
+            }) {
+              projectItem {
+                id
+              }
             }
-          }
-        }`,
-        { projectId, title: draftTitle, body: draftBody }
-      );
-      const itemId = result.addProjectV2DraftIssue.projectItem.id;
+          }`,
+          { projectId, title: draftTitle, body: draftBody }
+        );
+        itemId = result.addProjectV2DraftIssue.projectItem.id;
+      }
 
       const fieldsToUpdate = output.fields ? { ...output.fields } : {};
       if (Object.keys(fieldsToUpdate).length > 0) {

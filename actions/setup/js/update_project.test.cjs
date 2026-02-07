@@ -249,6 +249,24 @@ const existingItemResponse = (contentId, itemId = "existing-item") => ({
   },
 });
 
+const existingDraftItemResponse = (title, itemId = "existing-draft-item") => ({
+  node: {
+    items: {
+      nodes: [{ id: itemId, content: { id: "draft-content-id", title } }],
+      pageInfo: { hasNextPage: false, endCursor: null },
+    },
+  },
+});
+
+const emptyDraftItemsResponse = () => ({
+  node: {
+    items: {
+      nodes: [],
+      pageInfo: { hasNextPage: false, endCursor: null },
+    },
+  },
+});
+
 const fieldsResponse = nodes => ({ node: { fields: { nodes } } });
 
 const updateFieldValueResponse = () => ({
@@ -427,7 +445,7 @@ describe("updateProject", () => {
       draft_body: "Draft body",
     };
 
-    queueResponses([repoResponse(), viewerResponse(), orgProjectV2Response(projectUrl, 60, "project-draft"), addDraftIssueResponse("draft-item-1")]);
+    queueResponses([repoResponse(), viewerResponse(), orgProjectV2Response(projectUrl, 60, "project-draft"), emptyDraftItemsResponse(), addDraftIssueResponse("draft-item-1")]);
 
     await updateProject(output);
 
@@ -448,6 +466,25 @@ describe("updateProject", () => {
     queueResponses([repoResponse(), viewerResponse(), orgProjectV2Response(projectUrl, 60, "project-draft")]);
 
     await expect(updateProject(output)).rejects.toThrow(/draft_title/);
+  });
+
+  it("skips adding a draft issue that already exists on the board", async () => {
+    const projectUrl = "https://github.com/orgs/testowner/projects/60";
+    const output = {
+      type: "update_project",
+      project: projectUrl,
+      content_type: "draft_issue",
+      draft_title: "Draft title",
+    };
+
+    queueResponses([repoResponse(), viewerResponse(), orgProjectV2Response(projectUrl, 60, "project-draft"), existingDraftItemResponse("Draft title", "existing-draft-item")]);
+
+    await updateProject(output);
+
+    expect(mockCore.info).toHaveBeenCalledWith("✓ Draft issue already on board");
+    expect(getOutput("item-id")).toBe("existing-draft-item");
+    // Should not call addProjectV2DraftIssue mutation
+    expect(mockGithub.graphql.mock.calls.some(([query]) => query.includes("addProjectV2DraftIssue"))).toBe(false);
   });
 
   it("skips adding an issue that already exists on the board", async () => {
@@ -583,6 +620,7 @@ describe("updateProject", () => {
       repoResponse(),
       viewerResponse(),
       orgProjectV2Response(projectUrl, 60, "project-draft-fields"),
+      emptyDraftItemsResponse(),
       addDraftIssueResponse("draft-item-fields"),
       fieldsResponse([{ id: "field-status", name: "Status" }]),
       updateFieldValueResponse(),
@@ -1263,7 +1301,7 @@ describe("updateProject", () => {
       draft_body: "This is a test",
     };
 
-    queueResponses([repoResponse(), viewerResponse(), orgProjectV2Response(messageProjectUrl, 60, "project-message"), addDraftIssueResponse("draft-item-message")]);
+    queueResponses([repoResponse(), viewerResponse(), orgProjectV2Response(messageProjectUrl, 60, "project-message"), emptyDraftItemsResponse(), addDraftIssueResponse("draft-item-message")]);
 
     const result = await messageHandler(messageWithProject, new Map());
 
