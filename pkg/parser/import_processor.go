@@ -316,23 +316,8 @@ func processImportsFromFrontmatterWithManifestAndSource(frontmatter map[string]a
 				log.Printf("Added agent import path for runtime-import: %s", importRelPath)
 			} else {
 				// Has inputs - must inline for compile-time substitution
-				log.Printf("Agent file has inputs - will be inlined instead of runtime-imported")
-
-				// For agent files, extract markdown content (only when inputs are present)
-				markdownContent, err := processIncludedFileWithVisited(item.fullPath, item.sectionName, false, visited)
-				if err != nil {
-					return nil, fmt.Errorf("failed to process markdown from agent file '%s': %w", item.fullPath, err)
-				}
-				if markdownContent != "" {
-					markdownBuilder.WriteString(markdownContent)
-					// Add blank line separator between imported files
-					if !strings.HasSuffix(markdownContent, "\n\n") {
-						if strings.HasSuffix(markdownContent, "\n") {
-							markdownBuilder.WriteString("\n")
-						} else {
-							markdownBuilder.WriteString("\n\n")
-						}
-					}
+				if err := handleImportWithInputs(item, importRelPath, visited, &markdownBuilder); err != nil {
+					return nil, fmt.Errorf("agent file: %w", err)
 				}
 			}
 
@@ -488,23 +473,8 @@ func processImportsFromFrontmatterWithManifestAndSource(frontmatter map[string]a
 			log.Printf("Added import path for runtime-import: %s", importRelPath)
 		} else {
 			// Has inputs - must inline for compile-time substitution
-			log.Printf("Import %s has inputs - will be inlined for compile-time substitution", importRelPath)
-
-			// Extract markdown content from imported file (only for imports with inputs)
-			markdownContent, err := processIncludedFileWithVisited(item.fullPath, item.sectionName, false, visited)
-			if err != nil {
-				return nil, fmt.Errorf("failed to process markdown from imported file '%s': %w", item.fullPath, err)
-			}
-			if markdownContent != "" {
-				markdownBuilder.WriteString(markdownContent)
-				// Add blank line separator between imported files
-				if !strings.HasSuffix(markdownContent, "\n\n") {
-					if strings.HasSuffix(markdownContent, "\n") {
-						markdownBuilder.WriteString("\n")
-					} else {
-						markdownBuilder.WriteString("\n\n")
-					}
-				}
+			if err := handleImportWithInputs(item, importRelPath, visited, &markdownBuilder); err != nil {
+				return nil, err
 			}
 		}
 
@@ -821,4 +791,34 @@ func extractImportPaths(frontmatter map[string]any) []string {
 	}
 
 	return imports
+}
+
+// handleImportWithInputs processes an import that has inputs (must be inlined for compile-time substitution)
+func handleImportWithInputs(item *importItem, importRelPath string, visited map[string]bool, markdownBuilder *strings.Builder) error {
+	log.Printf("Import %s has inputs - will be inlined for compile-time substitution", importRelPath)
+
+	// Extract markdown content from imported file
+	markdownContent, err := processIncludedFileWithVisited(item.fullPath, item.sectionName, false, visited)
+	if err != nil {
+		return fmt.Errorf("failed to process markdown from imported file '%s': %w", item.fullPath, err)
+	}
+
+	if markdownContent != "" {
+		markdownBuilder.WriteString(markdownContent)
+		// Add blank line separator between imported files
+		appendBlankLineSeparator(markdownBuilder, markdownContent)
+	}
+
+	return nil
+}
+
+// appendBlankLineSeparator ensures proper spacing between markdown content blocks
+func appendBlankLineSeparator(builder *strings.Builder, content string) {
+	if !strings.HasSuffix(content, "\n\n") {
+		if strings.HasSuffix(content, "\n") {
+			builder.WriteString("\n")
+		} else {
+			builder.WriteString("\n\n")
+		}
+	}
 }
