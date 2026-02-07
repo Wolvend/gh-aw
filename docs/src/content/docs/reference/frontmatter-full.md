@@ -1103,16 +1103,18 @@ sandbox:
 # Option 1: List of plugin repository slugs to install. Each plugin is installed
 # using the engine's plugin installation command with default token resolution.
 plugins: []
-  # Array items: Plugin repository slug in the format 'org/repo' (e.g.,
-  # 'github/example-plugin')
+  # Array items: Plugin repository slug in the format 'org/repo' or
+  # 'plugin-name@org/repo' (e.g., 'github/example-plugin' or
+  # 'explanatory-output-style@anthropics/claude-code')
 
 # Option 2: Plugin configuration with custom GitHub token. The custom token
 # overrides the default token resolution chain.
 plugins:
   # List of plugin repository slugs to install
   repos: []
-    # Array of Plugin repository slug in the format 'org/repo' (e.g.,
-    # 'github/example-plugin')
+    # Array of Plugin repository slug in the format 'org/repo' or
+    # 'plugin-name@org/repo' (e.g., 'github/example-plugin' or
+    # 'explanatory-output-style@anthropics/claude-code')
 
   # Custom GitHub token expression to use for plugin installation. Overrides the
   # default cascading token resolution (GH_AW_PLUGINS_TOKEN -> GH_AW_GITHUB_TOKEN ->
