@@ -1,8 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 const mockCore = { debug: vi.fn(), info: vi.fn(), warning: vi.fn(), error: vi.fn(), setFailed: vi.fn(), setOutput: vi.fn(), summary: { addRaw: vi.fn().mockReturnThis(), write: vi.fn().mockResolvedValue() } },
-  mockContext = { eventName: "issues", runId: 12345, repo: { owner: "testowner", repo: "testrepo" }, payload: { issue: { number: 42 }, pull_request: { number: 100 }, repository: { html_url: "https://github.com/testowner/testrepo" } } };
-((global.core = mockCore), (global.context = mockContext));
-const { checkLabelFilter, checkTitlePrefixFilter, parseEntityConfig, resolveEntityNumber, escapeMarkdownTitle, ISSUE_CONFIG, PULL_REQUEST_CONFIG } = require("./close_entity_helpers.cjs");
+  mockContext = { eventName: "issues", runId: 12345, repo: { owner: "testowner", repo: "testrepo" }, payload: { issue: { number: 42 }, pull_request: { number: 100 }, repository: { html_url: "https://github.com/testowner/testrepo" } } },
+  mockGithub = {};
+((global.core = mockCore), (global.context = mockContext), (global.github = mockGithub));
+const { checkLabelFilter, checkTitlePrefixFilter, parseEntityConfig, resolveEntityNumber, escapeMarkdownTitle, createCloseEntityHandler, ISSUE_CONFIG, PULL_REQUEST_CONFIG } = require("./close_entity_helpers.cjs");
 describe("close_entity_helpers", () => {
   (beforeEach(() => {
     (vi.clearAllMocks(),
@@ -182,6 +183,77 @@ describe("close_entity_helpers", () => {
         }),
         it("should have correct URL path", () => {
           expect(PULL_REQUEST_CONFIG.urlPath).toBe("pull");
+        }));
+    }),
+    describe("createCloseEntityHandler", () => {
+      (it("should create a handler function that respects max count", async () => {
+        const mockGetDetails = vi.fn().mockResolvedValue({ number: 1, title: "Test", labels: [], html_url: "http://test", state: "open" });
+        const mockAddComment = vi.fn().mockResolvedValue({ id: 1, html_url: "http://comment" });
+        const mockCloseEntity = vi.fn().mockResolvedValue({ number: 1, html_url: "http://test", title: "Test" });
+        const handler = createCloseEntityHandler("issue", "issue_number", "issue", { getDetails: mockGetDetails, addComment: mockAddComment, closeEntity: mockCloseEntity }, { max: 1 });
+        const result1 = await handler({ issue_number: 1 }, {});
+        (expect(result1.success).toBe(true), expect(mockCloseEntity).toHaveBeenCalled());
+        const result2 = await handler({ issue_number: 2 }, {});
+        (expect(result2.success).toBe(false), expect(result2.error).toContain("Max count"), expect(mockCloseEntity).toHaveBeenCalledTimes(1));
+      }),
+        it("should handle missing entity number field", async () => {
+          const handler = createCloseEntityHandler("issue", "issue_number", "issue", { getDetails: vi.fn(), addComment: vi.fn(), closeEntity: vi.fn() }, {});
+          (global.context.payload.issue = undefined);
+          const result = await handler({}, {});
+          (expect(result.success).toBe(false), expect(result.error).toContain("No issue number available"));
+        }),
+        it("should handle invalid entity number", async () => {
+          const handler = createCloseEntityHandler("issue", "issue_number", "issue", { getDetails: vi.fn(), addComment: vi.fn(), closeEntity: vi.fn() }, {});
+          const result = await handler({ issue_number: "invalid" }, {});
+          (expect(result.success).toBe(false), expect(result.error).toContain("Invalid issue number"));
+        }),
+        it("should handle already closed entity", async () => {
+          const mockGetDetails = vi.fn().mockResolvedValue({ number: 1, title: "Test", labels: [], html_url: "http://test", state: "closed" });
+          const mockAddComment = vi.fn();
+          const mockCloseEntity = vi.fn();
+          const handler = createCloseEntityHandler("issue", "issue_number", "issue", { getDetails: mockGetDetails, addComment: mockAddComment, closeEntity: mockCloseEntity }, {});
+          const result = await handler({ issue_number: 1 }, {});
+          (expect(result.success).toBe(true), expect(result.alreadyClosed).toBe(true), expect(mockCloseEntity).not.toHaveBeenCalled());
+        }),
+        it("should validate required labels", async () => {
+          const mockGetDetails = vi.fn().mockResolvedValue({ number: 1, title: "Test", labels: [{ name: "bug" }], html_url: "http://test", state: "open" });
+          const mockAddComment = vi.fn();
+          const mockCloseEntity = vi.fn();
+          const handler = createCloseEntityHandler("issue", "issue_number", "issue", { getDetails: mockGetDetails, addComment: mockAddComment, closeEntity: mockCloseEntity }, { required_labels: ["enhancement"] });
+          const result = await handler({ issue_number: 1 }, {});
+          (expect(result.success).toBe(false), expect(result.error).toContain("Missing required labels"), expect(mockCloseEntity).not.toHaveBeenCalled());
+        }),
+        it("should validate required title prefix", async () => {
+          const mockGetDetails = vi.fn().mockResolvedValue({ number: 1, title: "Test", labels: [], html_url: "http://test", state: "open" });
+          const mockAddComment = vi.fn();
+          const mockCloseEntity = vi.fn();
+          const handler = createCloseEntityHandler("issue", "issue_number", "issue", { getDetails: mockGetDetails, addComment: mockAddComment, closeEntity: mockCloseEntity }, { required_title_prefix: "[bug]" });
+          const result = await handler({ issue_number: 1 }, {});
+          (expect(result.success).toBe(false), expect(result.error).toContain(`Title doesn't start with "[bug]"`), expect(mockCloseEntity).not.toHaveBeenCalled());
+        }),
+        it("should add comment when configured", async () => {
+          const mockGetDetails = vi.fn().mockResolvedValue({ number: 1, title: "Test", labels: [], html_url: "http://test", state: "open" });
+          const mockAddComment = vi.fn().mockResolvedValue({ id: 1, html_url: "http://comment" });
+          const mockCloseEntity = vi.fn().mockResolvedValue({ number: 1, html_url: "http://test", title: "Test" });
+          const handler = createCloseEntityHandler("issue", "issue_number", "issue", { getDetails: mockGetDetails, addComment: mockAddComment, closeEntity: mockCloseEntity }, { comment: "Closing this issue" });
+          const result = await handler({ issue_number: 1 }, {});
+          (expect(result.success).toBe(true), expect(mockAddComment).toHaveBeenCalledWith(expect.any(Object), "testowner", "testrepo", 1, "Closing this issue"), expect(mockCloseEntity).toHaveBeenCalled());
+        }),
+        it("should close entity successfully", async () => {
+          const mockGetDetails = vi.fn().mockResolvedValue({ number: 1, title: "Test", labels: [], html_url: "http://test", state: "open" });
+          const mockAddComment = vi.fn().mockResolvedValue({ id: 1, html_url: "http://comment" });
+          const mockCloseEntity = vi.fn().mockResolvedValue({ number: 1, html_url: "http://closed", title: "Test Closed" });
+          const handler = createCloseEntityHandler("issue", "issue_number", "issue", { getDetails: mockGetDetails, addComment: mockAddComment, closeEntity: mockCloseEntity }, {});
+          const result = await handler({ issue_number: 1 }, {});
+          (expect(result.success).toBe(true), expect(result.number).toBe(1), expect(result.url).toBe("http://closed"), expect(result.title).toBe("Test Closed"), expect(mockCloseEntity).toHaveBeenCalledWith(expect.any(Object), "testowner", "testrepo", 1));
+        }),
+        it("should handle errors gracefully", async () => {
+          const mockGetDetails = vi.fn().mockRejectedValue(new Error("API Error"));
+          const mockAddComment = vi.fn();
+          const mockCloseEntity = vi.fn();
+          const handler = createCloseEntityHandler("issue", "issue_number", "issue", { getDetails: mockGetDetails, addComment: mockAddComment, closeEntity: mockCloseEntity }, {});
+          const result = await handler({ issue_number: 1 }, {});
+          (expect(result.success).toBe(false), expect(result.error).toContain("API Error"));
         }));
     }));
 });

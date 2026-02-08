@@ -385,6 +385,157 @@ const PULL_REQUEST_CONFIG = {
   displayNameCapitalizedPlural: "Pull Requests",
 };
 
+/**
+ * @typedef {Object} EntityAPIs
+ * @property {(github: any, owner: string, repo: string, entityNumber: number) => Promise<{number: number, title: string, labels: Array<{name: string} | string>, html_url: string, state: string}>} getDetails
+ * @property {(github: any, owner: string, repo: string, entityNumber: number, message: string) => Promise<{id: number, html_url: string}>} addComment
+ * @property {(github: any, owner: string, repo: string, entityNumber: number) => Promise<{number: number, html_url: string, title: string}>} closeEntity
+ */
+
+/**
+ * @typedef {Object} HandlerConfig
+ * @property {string[]} [required_labels] - Required labels filter
+ * @property {string} [required_title_prefix] - Required title prefix filter
+ * @property {number} [max] - Maximum number of entities to process
+ * @property {string} [comment] - Comment to add before closing
+ */
+
+/**
+ * Generic factory function for creating close-entity handlers
+ * Extracts shared scaffolding: max-count guard, identifier resolution,
+ * required label/prefix validation, optional comment handling, and close action
+ *
+ * @param {string} entityType - Entity type ("issue", "pull_request", or "discussion")
+ * @param {string} numberField - Field name for entity number (e.g., "issue_number")
+ * @param {string} contextPayloadField - Context payload field (e.g., "issue")
+ * @param {EntityAPIs} apis - Entity-specific API functions
+ * @param {HandlerConfig} config - Handler configuration
+ * @returns {(message: any, resolvedTemporaryIds: any) => Promise<{success: true, number?: number, url?: string, title?: string, alreadyClosed?: boolean} | {success: false, error: string}>}
+ */
+function createCloseEntityHandler(entityType, numberField, contextPayloadField, apis, config) {
+  const requiredLabels = config.required_labels || [];
+  const requiredTitlePrefix = config.required_title_prefix || "";
+  const maxCount = config.max || 10;
+  const comment = config.comment || "";
+
+  core.info(`Close ${entityType} configuration: max=${maxCount}`);
+  if (requiredLabels.length > 0) {
+    core.info(`Required labels: ${requiredLabels.join(", ")}`);
+  }
+  if (requiredTitlePrefix) {
+    core.info(`Required title prefix: ${requiredTitlePrefix}`);
+  }
+
+  // Track how many items we've processed for max limit
+  let processedCount = 0;
+
+  /**
+   * Message handler function that processes a single close entity message
+   * @param {Object} message - The close entity message to process
+   * @param {Object} resolvedTemporaryIds - Map of temporary IDs to {repo, number}
+   * @returns {Promise<Object>} Result with success/error status
+   */
+  return async function handleCloseEntity(message, resolvedTemporaryIds) {
+    // Check if we've hit the max limit
+    if (processedCount >= maxCount) {
+      core.warning(`Skipping close_${entityType}: max count of ${maxCount} reached`);
+      return {
+        success: false,
+        error: `Max count of ${maxCount} reached`,
+      };
+    }
+
+    processedCount++;
+
+    const item = message;
+
+    // Determine entity number
+    let entityNumber;
+    if (item[numberField] !== undefined) {
+      entityNumber = parseInt(String(item[numberField]), 10);
+      if (isNaN(entityNumber)) {
+        core.warning(`Invalid ${entityType} number: ${item[numberField]}`);
+        return {
+          success: false,
+          error: `Invalid ${entityType} number: ${item[numberField]}`,
+        };
+      }
+    } else {
+      // Use context entity if available
+      const contextEntity = context.payload?.[contextPayloadField]?.number;
+      if (!contextEntity) {
+        core.warning(`No ${numberField} provided and not in ${entityType} context`);
+        return {
+          success: false,
+          error: `No ${entityType} number available`,
+        };
+      }
+      entityNumber = contextEntity;
+    }
+
+    try {
+      // Fetch entity details
+      const entity = await apis.getDetails(github, context.repo.owner, context.repo.repo, entityNumber);
+
+      // Check if already closed
+      if (entity.state === "closed") {
+        core.info(`${entityType.charAt(0).toUpperCase() + entityType.slice(1)} #${entityNumber} is already closed`);
+        return {
+          success: true,
+          number: entityNumber,
+          alreadyClosed: true,
+        };
+      }
+
+      // Validate required labels if configured
+      if (requiredLabels.length > 0) {
+        const entityLabels = entity.labels.map(l => (typeof l === "string" ? l : l.name || ""));
+        const missingLabels = requiredLabels.filter(required => !entityLabels.includes(required));
+        if (missingLabels.length > 0) {
+          core.warning(`${entityType.charAt(0).toUpperCase() + entityType.slice(1)} #${entityNumber} missing required labels: ${missingLabels.join(", ")}`);
+          return {
+            success: false,
+            error: `Missing required labels: ${missingLabels.join(", ")}`,
+          };
+        }
+      }
+
+      // Validate required title prefix if configured
+      if (requiredTitlePrefix && !entity.title.startsWith(requiredTitlePrefix)) {
+        core.warning(`${entityType.charAt(0).toUpperCase() + entityType.slice(1)} #${entityNumber} title doesn't start with "${requiredTitlePrefix}"`);
+        return {
+          success: false,
+          error: `Title doesn't start with "${requiredTitlePrefix}"`,
+        };
+      }
+
+      // Add comment if configured
+      if (comment) {
+        await apis.addComment(github, context.repo.owner, context.repo.repo, entityNumber, comment);
+        core.info(`Added comment to ${entityType} #${entityNumber}`);
+      }
+
+      // Close the entity
+      const closedEntity = await apis.closeEntity(github, context.repo.owner, context.repo.repo, entityNumber);
+      core.info(`Closed ${entityType} #${entityNumber}: ${closedEntity.html_url}`);
+
+      return {
+        success: true,
+        number: entityNumber,
+        url: closedEntity.html_url,
+        title: closedEntity.title,
+      };
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      core.error(`Failed to close ${entityType} #${entityNumber}: ${errorMessage}`);
+      return {
+        success: false,
+        error: errorMessage,
+      };
+    }
+  };
+}
+
 module.exports = {
   processCloseEntityItems,
   generateCloseEntityStagedPreview,
@@ -394,6 +545,7 @@ module.exports = {
   resolveEntityNumber,
   buildCommentBody,
   escapeMarkdownTitle,
+  createCloseEntityHandler,
   ISSUE_CONFIG,
   PULL_REQUEST_CONFIG,
 };

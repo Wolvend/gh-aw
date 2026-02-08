@@ -5,7 +5,7 @@
  * @typedef {import('./types/handler-factory').HandlerFactoryFunction} HandlerFactoryFunction
  */
 
-const { getErrorMessage } = require("./error_helpers.cjs");
+const { createCloseEntityHandler } = require("./close_entity_helpers.cjs");
 
 /**
  * Get discussion details using GraphQL with pagination for labels
@@ -13,7 +13,7 @@ const { getErrorMessage } = require("./error_helpers.cjs");
  * @param {string} owner - Repository owner
  * @param {string} repo - Repository name
  * @param {number} discussionNumber - Discussion number
- * @returns {Promise<{id: string, title: string, category: {name: string}, labels: {nodes: Array<{name: string}>}, url: string}>} Discussion details
+ * @returns {Promise<{id: string, number: number, title: string, category: {name: string}, labels: Array<{name: string}>, html_url: string, state: string}>} Discussion details
  */
 async function getDiscussionDetails(github, owner, repo, discussionNumber) {
   // Fetch all labels with pagination
@@ -74,25 +74,32 @@ async function getDiscussionDetails(github, owner, repo, discussionNumber) {
     throw new Error(`Failed to fetch discussion #${discussionNumber}`);
   }
 
+  // Adapt the response to match the expected interface
   return {
     id: discussion.id,
+    number: discussionNumber,
     title: discussion.title,
     category: discussion.category,
-    url: discussion.url,
-    labels: {
-      nodes: allLabels,
-    },
+    labels: allLabels, // Already in {name: string} format
+    html_url: discussion.url,
+    state: "open", // Discussions don't expose state via GraphQL, assume open
   };
 }
 
 /**
  * Add comment to a GitHub Discussion using GraphQL
+ * Note: Discussions use GraphQL node IDs instead of (owner, repo, number)
  * @param {any} github - GitHub GraphQL instance
- * @param {string} discussionId - Discussion node ID
+ * @param {string} owner - Repository owner (unused for GraphQL)
+ * @param {string} repo - Repository name (unused for GraphQL)
+ * @param {number} discussionNumber - Discussion number
  * @param {string} message - Comment body
- * @returns {Promise<{id: string, url: string}>} Comment details
+ * @returns {Promise<{id: number, html_url: string}>} Comment details
  */
-async function addDiscussionComment(github, discussionId, message) {
+async function addDiscussionComment(github, owner, repo, discussionNumber, message) {
+  // First fetch the discussion to get its node ID
+  const discussion = await getDiscussionDetails(github, owner, repo, discussionNumber);
+
   const result = await github.graphql(
     `
     mutation($dId: ID!, $body: String!) {
@@ -103,44 +110,47 @@ async function addDiscussionComment(github, discussionId, message) {
         }
       }
     }`,
-    { dId: discussionId, body: message }
+    { dId: discussion.id, body: message }
   );
 
-  return result.addDiscussionComment.comment;
+  // Adapt the response to match the expected interface
+  return {
+    id: result.addDiscussionComment.comment.id,
+    html_url: result.addDiscussionComment.comment.url,
+  };
 }
 
 /**
  * Close a GitHub Discussion using GraphQL
+ * Note: Discussions use GraphQL node IDs instead of (owner, repo, number)
  * @param {any} github - GitHub GraphQL instance
- * @param {string} discussionId - Discussion node ID
- * @param {string|undefined} reason - Optional close reason (RESOLVED, DUPLICATE, OUTDATED, or ANSWERED)
- * @returns {Promise<{id: string, url: string}>} Discussion details
+ * @param {string} owner - Repository owner (unused for GraphQL)
+ * @param {string} repo - Repository name (unused for GraphQL)
+ * @param {number} discussionNumber - Discussion number
+ * @returns {Promise<{number: number, html_url: string, title: string}>} Discussion details
  */
-async function closeDiscussion(github, discussionId, reason) {
-  const mutation = reason
-    ? `
-      mutation($dId: ID!, $reason: DiscussionCloseReason!) {
-        closeDiscussion(input: { discussionId: $dId, reason: $reason }) {
-          discussion { 
-            id
-            url
-          }
-        }
-      }`
-    : `
-      mutation($dId: ID!) {
-        closeDiscussion(input: { discussionId: $dId }) {
-          discussion { 
-            id
-            url
-          }
-        }
-      }`;
+async function closeDiscussion(github, owner, repo, discussionNumber) {
+  // First fetch the discussion to get its node ID and title
+  const discussion = await getDiscussionDetails(github, owner, repo, discussionNumber);
 
-  const variables = reason ? { dId: discussionId, reason } : { dId: discussionId };
-  const result = await github.graphql(mutation, variables);
+  const mutation = `
+    mutation($dId: ID!) {
+      closeDiscussion(input: { discussionId: $dId }) {
+        discussion { 
+          id
+          url
+        }
+      }
+    }`;
 
-  return result.closeDiscussion.discussion;
+  const result = await github.graphql(mutation, { dId: discussion.id });
+
+  // Adapt the response to match the expected interface
+  return {
+    number: discussionNumber,
+    html_url: result.closeDiscussion.discussion.url,
+    title: discussion.title,
+  };
 }
 
 /**
@@ -149,121 +159,18 @@ async function closeDiscussion(github, discussionId, reason) {
  * @type {HandlerFactoryFunction}
  */
 async function main(config = {}) {
-  // Extract configuration
-  const requiredLabels = config.required_labels || [];
-  const requiredTitlePrefix = config.required_title_prefix || "";
-  const maxCount = config.max || 10;
-
-  core.info(`Close discussion configuration: max=${maxCount}`);
-  if (requiredLabels.length > 0) {
-    core.info(`Required labels: ${requiredLabels.join(", ")}`);
-  }
-  if (requiredTitlePrefix) {
-    core.info(`Required title prefix: ${requiredTitlePrefix}`);
-  }
-
-  // Track how many items we've processed for max limit
-  let processedCount = 0;
-
-  /**
-   * Message handler function that processes a single close_discussion message
-   * @param {Object} message - The close_discussion message to process
-   * @param {Object} resolvedTemporaryIds - Map of temporary IDs to {repo, number}
-   * @returns {Promise<Object>} Result with success/error status
-   */
-  return async function handleCloseDiscussion(message, resolvedTemporaryIds) {
-    // Check if we've hit the max limit
-    if (processedCount >= maxCount) {
-      core.warning(`Skipping close_discussion: max count of ${maxCount} reached`);
-      return {
-        success: false,
-        error: `Max count of ${maxCount} reached`,
-      };
-    }
-
-    processedCount++;
-
-    const item = message;
-
-    // Determine discussion number
-    let discussionNumber;
-    if (item.discussion_number !== undefined) {
-      discussionNumber = parseInt(String(item.discussion_number), 10);
-      if (isNaN(discussionNumber)) {
-        core.warning(`Invalid discussion number: ${item.discussion_number}`);
-        return {
-          success: false,
-          error: `Invalid discussion number: ${item.discussion_number}`,
-        };
-      }
-    } else {
-      // Use context discussion if available
-      const contextDiscussion = context.payload?.discussion?.number;
-      if (!contextDiscussion) {
-        core.warning("No discussion_number provided and not in discussion context");
-        return {
-          success: false,
-          error: "No discussion number available",
-        };
-      }
-      discussionNumber = contextDiscussion;
-    }
-
-    try {
-      // Fetch discussion details
-      const discussion = await getDiscussionDetails(github, context.repo.owner, context.repo.repo, discussionNumber);
-
-      // Validate required labels if configured
-      if (requiredLabels.length > 0) {
-        const discussionLabels = discussion.labels.nodes.map(l => l.name);
-        const missingLabels = requiredLabels.filter(required => !discussionLabels.includes(required));
-        if (missingLabels.length > 0) {
-          core.warning(`Discussion #${discussionNumber} missing required labels: ${missingLabels.join(", ")}`);
-          return {
-            success: false,
-            error: `Missing required labels: ${missingLabels.join(", ")}`,
-          };
-        }
-      }
-
-      // Validate required title prefix if configured
-      if (requiredTitlePrefix && !discussion.title.startsWith(requiredTitlePrefix)) {
-        core.warning(`Discussion #${discussionNumber} title doesn't start with "${requiredTitlePrefix}"`);
-        return {
-          success: false,
-          error: `Title doesn't start with "${requiredTitlePrefix}"`,
-        };
-      }
-
-      // Add comment if body is provided
-      let commentUrl;
-      if (item.body) {
-        const comment = await addDiscussionComment(github, discussion.id, item.body);
-        core.info(`Added comment to discussion #${discussionNumber}: ${comment.url}`);
-        commentUrl = comment.url;
-      }
-
-      // Close the discussion
-      const reason = item.reason || undefined;
-      core.info(`Closing discussion #${discussionNumber} with reason: ${reason || "none"}`);
-      const closedDiscussion = await closeDiscussion(github, discussion.id, reason);
-      core.info(`Closed discussion #${discussionNumber}: ${closedDiscussion.url}`);
-
-      return {
-        success: true,
-        number: discussionNumber,
-        url: discussion.url,
-        commentUrl: commentUrl,
-      };
-    } catch (error) {
-      const errorMessage = getErrorMessage(error);
-      core.error(`Failed to close discussion #${discussionNumber}: ${errorMessage}`);
-      return {
-        success: false,
-        error: errorMessage,
-      };
-    }
-  };
+  // Use the generic factory with discussion-specific APIs
+  return createCloseEntityHandler(
+    "discussion",
+    "discussion_number",
+    "discussion",
+    {
+      getDetails: getDiscussionDetails,
+      addComment: addDiscussionComment,
+      closeEntity: closeDiscussion,
+    },
+    config
+  );
 }
 
 module.exports = { main };
