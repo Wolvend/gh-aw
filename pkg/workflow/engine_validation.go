@@ -161,9 +161,34 @@ func (c *Compiler) validatePluginSupport(pluginInfo *PluginInfo, agenticEngine C
 		// Build error message listing the plugins that were specified
 		pluginsList := strings.Join(pluginInfo.Plugins, ", ")
 
-		return fmt.Errorf("engine '%s' does not support plugins. The following plugins cannot be installed: %s\n\nOnly the 'copilot' engine currently supports plugin installation.\n\nTo fix this, either:\n1. Remove the 'plugins' field from your workflow\n2. Change to an engine that supports plugins (e.g., engine: copilot)\n\nSee: %s",
+		// Get list of engines that support plugins
+		supportedEngines := []string{}
+		for _, engineID := range c.engineRegistry.GetSupportedEngines() {
+			if engine, err := c.engineRegistry.GetEngine(engineID); err == nil {
+				if engine.SupportsPlugins() {
+					supportedEngines = append(supportedEngines, engineID)
+				}
+			}
+		}
+
+		// Format the supported engines list
+		var supportedEnginesList string
+		if len(supportedEngines) == 0 {
+			supportedEnginesList = "No engines currently support"
+		} else if len(supportedEngines) == 1 {
+			supportedEnginesList = fmt.Sprintf("Only the '%s' engine currently supports", supportedEngines[0])
+		} else {
+			// Join all but the last with commas, then add "or" before the last
+			lastEngine := supportedEngines[len(supportedEngines)-1]
+			otherEngines := supportedEngines[:len(supportedEngines)-1]
+			supportedEnginesList = fmt.Sprintf("The '%s' or '%s' engines support", strings.Join(otherEngines, "', '"), lastEngine)
+		}
+
+		return fmt.Errorf("engine '%s' does not support plugins. The following plugins cannot be installed: %s\n\n%s plugin installation.\n\nTo fix this, either:\n1. Remove the 'plugins' field from your workflow\n2. Change to an engine that supports plugins (e.g., engine: %s)\n\nSee: %s",
 			agenticEngine.GetID(),
 			pluginsList,
+			supportedEnginesList,
+			supportedEngines[0], // Use first supported engine as example
 			constants.DocsEnginesURL)
 	}
 

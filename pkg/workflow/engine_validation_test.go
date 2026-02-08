@@ -419,22 +419,20 @@ func TestValidatePluginSupport(t *testing.T) {
 			expectError: false,
 		},
 		{
-			name: "plugins with claude engine (not supported)",
+			name: "plugins with claude engine (supported)",
 			pluginInfo: &PluginInfo{
 				Plugins: []string{"org/plugin1"},
 			},
 			engineID:    "claude",
-			expectError: true,
-			errorMsg:    "does not support plugins",
+			expectError: false,
 		},
 		{
-			name: "plugins with codex engine (not supported)",
+			name: "plugins with codex engine (supported)",
 			pluginInfo: &PluginInfo{
 				Plugins: []string{"org/plugin1", "org/plugin2"},
 			},
 			engineID:    "codex",
-			expectError: true,
-			errorMsg:    "does not support plugins",
+			expectError: false,
 		},
 		{
 			name: "plugins with custom engine (not supported)",
@@ -479,24 +477,24 @@ func TestValidatePluginSupport(t *testing.T) {
 // TestValidatePluginSupportErrorMessage verifies the plugin validation error message quality
 func TestValidatePluginSupportErrorMessage(t *testing.T) {
 	compiler := NewCompiler()
-	claudeEngine, err := compiler.engineRegistry.GetEngine("claude")
+	customEngine, err := compiler.engineRegistry.GetEngine("custom")
 	if err != nil {
-		t.Fatalf("Failed to get claude engine: %v", err)
+		t.Fatalf("Failed to get custom engine: %v", err)
 	}
 
 	pluginInfo := &PluginInfo{
 		Plugins: []string{"org/plugin1", "org/plugin2"},
 	}
 
-	err = compiler.validatePluginSupport(pluginInfo, claudeEngine)
+	err = compiler.validatePluginSupport(pluginInfo, customEngine)
 	if err == nil {
-		t.Fatal("Expected validation to fail for plugins with claude engine")
+		t.Fatal("Expected validation to fail for plugins with custom engine")
 	}
 
 	errorMsg := err.Error()
 
 	// Error should mention the engine name
-	if !strings.Contains(errorMsg, "claude") {
+	if !strings.Contains(errorMsg, "custom") {
 		t.Errorf("Error message should mention the engine name, got: %s", errorMsg)
 	}
 
@@ -505,9 +503,9 @@ func TestValidatePluginSupportErrorMessage(t *testing.T) {
 		t.Errorf("Error message should list the plugins, got: %s", errorMsg)
 	}
 
-	// Error should mention copilot as the supported engine
+	// Error should mention copilot as a supported engine
 	if !strings.Contains(errorMsg, "copilot") {
-		t.Errorf("Error message should mention copilot as supported engine, got: %s", errorMsg)
+		t.Errorf("Error message should mention copilot as a supported engine, got: %s", errorMsg)
 	}
 
 	// Error should provide actionable fixes
