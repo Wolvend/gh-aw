@@ -334,7 +334,7 @@ function checkForMissingAgentToken(hasAssignmentErrors, hasCreateDiscussionError
   // If agent job failed and the agent output file doesn't exist,
   // it's likely that the agent token was not configured
   const agentConclusion = process.env.GH_AW_AGENT_CONCLUSION || "";
-  
+
   if (agentConclusion !== "failure") {
     return false;
   }
@@ -395,11 +395,11 @@ function buildMissingAgentTokenContext(hasAssignmentErrors, hasCreateDiscussionE
   context += "   - Pull Requests: Read and Write\n\n";
   context += "2. Add the token as a secret:\n";
   context += "   ```bash\n";
-  context += "   gh aw secrets set GH_AW_AGENT_TOKEN --value \"YOUR_TOKEN\"\n";
+  context += '   gh aw secrets set GH_AW_AGENT_TOKEN --value "YOUR_TOKEN"\n';
   context += "   ```\n\n";
   context += "3. Alternatively, set the secret in your repository settings:\n";
   context += "   - Go to Settings → Secrets and variables → Actions\n";
-  context += "   - Click \"New repository secret\"\n";
+  context += '   - Click "New repository secret"\n';
   context += "   - Name: `GH_AW_AGENT_TOKEN`\n";
   context += "   - Value: Your PAT\n\n";
   context += "For more information, see: https://github.github.io/gh-aw/reference/tokens/#gh_aw_agent_token-agent-assignment\n\n";
