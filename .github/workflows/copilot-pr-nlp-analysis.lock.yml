@@ -860,7 +860,12 @@ jobs:
           # Fix permissions on firewall logs so they can be uploaded as artifacts
           # AWF runs with sudo, creating files owned by root
           sudo chmod -R a+r /tmp/gh-aw/sandbox/firewall/logs 2>/dev/null || true
-          awf logs summary | tee -a "$GITHUB_STEP_SUMMARY"
+          # Check if awf command is available before running
+          if command -v awf >/dev/null 2>&1; then
+            awf logs summary | tee -a "$GITHUB_STEP_SUMMARY"
+          else
+            echo "⚠️ awf command not found, skipping firewall log summary" | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
       # Upload repo memory as artifacts for push job
       - name: Upload repo-memory artifact (default)
         if: always()
