@@ -22,6 +22,8 @@ The key insight is that many valuable automation tasks don't require determinism
 
 Your first call should be reliable, deterministic CI/CD. If you use agentic workflows, you should use them for tasks that benefit from a coding agent's flexibility, not for core build and release processes that require strict reproducibility.
 
+For guidance on choosing between approaches and evolving workflows over time, see [Workflow Evolution](/gh-aw/guides/workflow-evolution/).
+
 ## Capabilities
 
 ### What's the difference between agentic workflows and regular GitHub Actions workflows?
