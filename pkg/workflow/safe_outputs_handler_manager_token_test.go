@@ -166,3 +166,46 @@ func TestHandlerManagerProjectGitHubTokenEnvVar(t *testing.T) {
 		})
 	}
 }
+
+// TestHandlerManagerMultipleNonProjectTokens verifies that when multiple non-project handlers
+// specify different github-token values, they are correctly included in the handler config JSON
+func TestHandlerManagerMultipleNonProjectTokens(t *testing.T) {
+	compiler := NewCompiler()
+
+	// Parse frontmatter with create-issue and update-project having different tokens
+	frontmatter := map[string]any{
+		"name": "Test Multiple Tokens",
+		"safe-outputs": map[string]any{
+			"create-issue": map[string]any{
+				"github-token": "${{ secrets.AGENT_GITHUB_TOKEN }}",
+				"title-prefix": "[test] ",
+				"max":          5,
+			},
+			"update-project": map[string]any{
+				"github-token": "${{ secrets.PROJECT_GITHUB_TOKEN }}",
+				"project":      "https://github.com/orgs/myorg/projects/1",
+				"max":          10,
+			},
+		},
+	}
+
+	workflowData := &WorkflowData{
+		Name:        "test-workflow",
+		SafeOutputs: compiler.extractSafeOutputsConfig(frontmatter),
+	}
+
+	// Build the handler manager step
+	steps := compiler.buildHandlerManagerStep(workflowData)
+	yamlStr := strings.Join(steps, "")
+
+	// The JSON is embedded in YAML with escaped quotes
+	// Looking for: "{\"create_issue\":{\"github-token\":\"${{ secrets.AGENT_GITHUB_TOKEN }}\""
+	assert.Contains(t, yamlStr, `create_issue`, "Expected create_issue handler in config")
+	assert.Contains(t, yamlStr, `${{ secrets.AGENT_GITHUB_TOKEN }}`, "Expected AGENT_GITHUB_TOKEN in config")
+	assert.Contains(t, yamlStr, `update_project`, "Expected update_project handler in config")
+	assert.Contains(t, yamlStr, `${{ secrets.PROJECT_GITHUB_TOKEN }}`, "Expected PROJECT_GITHUB_TOKEN in config")
+
+	// Verify that the project token is used for the github-script step (takes precedence)
+	assert.Contains(t, yamlStr, "github-token: ${{ secrets.PROJECT_GITHUB_TOKEN }}",
+		"Expected PROJECT_GITHUB_TOKEN as the github-script token")
+}

@@ -1827,6 +1827,11 @@ safe-outputs:
     # (optional)
     max: 1
 
+    # GitHub token to use for this specific output type. Overrides global github-token
+    # if specified.
+    # (optional)
+    github-token: "${{ secrets.GITHUB_TOKEN }}"
+
     # Target repository in format 'owner/repo' for cross-repository issue creation.
     # Takes precedence over trial target repo settings.
     # (optional)
@@ -2182,6 +2187,11 @@ safe-outputs:
     # (optional)
     max: 1
 
+    # GitHub token to use for this specific output type. Overrides global github-token
+    # if specified.
+    # (optional)
+    github-token: "${{ secrets.GITHUB_TOKEN }}"
+
     # Target repository in format 'owner/repo' for cross-repository discussion
     # creation. Takes precedence over trial target repo settings.
     # (optional)
@@ -2261,6 +2271,11 @@ safe-outputs:
     # (optional)
     max: 1
 
+    # GitHub token to use for this specific output type. Overrides global github-token
+    # if specified.
+    # (optional)
+    github-token: "${{ secrets.GITHUB_TOKEN }}"
+
     # Target repository in format 'owner/repo' for cross-repository operations. Takes
     # precedence over trial target repo settings.
     # (optional)
@@ -2305,6 +2320,11 @@ safe-outputs:
     # (optional)
     max: 1
 
+    # GitHub token to use for this specific output type. Overrides global github-token
+    # if specified.
+    # (optional)
+    github-token: "${{ secrets.GITHUB_TOKEN }}"
+
     # Target repository in format 'owner/repo' for cross-repository discussion
     # updates. Takes precedence over trial target repo settings.
     # (optional)
@@ -2338,6 +2358,11 @@ safe-outputs:
     # Maximum number of issues to close (default: 1)
     # (optional)
     max: 1
+
+    # GitHub token to use for this specific output type. Overrides global github-token
+    # if specified.
+    # (optional)
+    github-token: "${{ secrets.GITHUB_TOKEN }}"
 
     # Target repository in format 'owner/repo' for cross-repository operations. Takes
     # precedence over trial target repo settings.
@@ -2438,6 +2463,11 @@ safe-outputs:
     # Maximum number of comments to create (default: 1)
     # (optional)
     max: 1
+
+    # GitHub token to use for this specific output type. Overrides global github-token
+    # if specified.
+    # (optional)
+    github-token: "${{ secrets.GITHUB_TOKEN }}"
 
     # Target for comments: 'triggering' (default), '*' (any issue), or explicit issue
     # number
@@ -2957,6 +2987,11 @@ safe-outputs:
     # (optional)
     max: 1
 
+    # GitHub token to use for this specific output type. Overrides global github-token
+    # if specified.
+    # (optional)
+    github-token: "${{ secrets.GITHUB_TOKEN }}"
+
     # Target repository in format 'owner/repo' for cross-repository issue updates.
     # Takes precedence over trial target repo settings.
     # (optional)
@@ -3070,6 +3105,11 @@ safe-outputs:
     # Maximum number of comments to hide (default: 5)
     # (optional)
     max: 1
+
+    # GitHub token to use for this specific output type. Overrides global github-token
+    # if specified.
+    # (optional)
+    github-token: "${{ secrets.GITHUB_TOKEN }}"
 
     # Target repository in format 'owner/repo' for cross-repository comment hiding.
     # Takes precedence over trial target repo settings.
@@ -3256,6 +3296,11 @@ safe-outputs:
     # Maximum number of releases to update (default: 1)
     # (optional)
     max: 1
+
+    # GitHub token to use for this specific output type. Overrides global github-token
+    # if specified.
+    # (optional)
+    github-token: "${{ secrets.GITHUB_TOKEN }}"
 
     # Target repository for cross-repo release updates (format: owner/repo). If not
     # specified, updates releases in the workflow's repository.
