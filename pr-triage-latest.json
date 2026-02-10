@@ -1,32 +1,12 @@
 {
-  "run_date": "2026-02-10T00:45:00Z",
-  "run_id": "21846903380",
-  "total_prs_triaged": 4,
+  "run_date": "2026-02-10T06:32:00Z",
+  "run_id": "21854355272",
+  "total_prs_triaged": 1,
   "results": [
     {
-      "number": 14701,
-      "title": "Fix API key masking timing vulnerability in MCP setup generation",
-      "url": "https://github.com/github/gh-aw/pull/14701",
-      "author": "Copilot",
-      "workflow": "manual",
-      "draft": true,
-      "category": "bug",
-      "risk": "high",
-      "priority_score": 82,
-      "impact_score": 48,
-      "urgency_score": 28,
-      "quality_score": 6,
-      "action": "fast_track",
-      "ci_status": "pending",
-      "age_hours": 0.4,
-      "files_changed": 100,
-      "lines_changed": 1093,
-      "batch_id": null
-    },
-    {
-      "number": 14702,
-      "title": "[WIP] Add strict regex matching to slash commands",
-      "url": "https://github.com/github/gh-aw/pull/14702",
+      "number": 14682,
+      "title": "Add test workflow for project-related safe output token failure paths",
+      "url": "https://github.com/github/gh-aw/pull/14682",
       "author": "Copilot",
       "workflow": "manual",
       "draft": true,
@@ -38,87 +18,41 @@
       "quality_score": 8,
       "action": "batch_review",
       "ci_status": "pending",
-      "age_hours": 0.3,
-      "files_changed": 20,
-      "lines_changed": 360,
-      "batch_id": "batch-test-001"
-    },
-    {
-      "number": 14682,
-      "title": "Add test workflow for project-related safe output token failure paths",
-      "url": "https://github.com/github/gh-aw/pull/14682",
-      "author": "Copilot",
-      "workflow": "manual",
-      "draft": true,
-      "category": "test",
-      "risk": "medium",
-      "priority_score": 39,
-      "impact_score": 25,
-      "urgency_score": 8,
-      "quality_score": 6,
-      "action": "batch_review",
-      "ci_status": "pending",
-      "age_hours": 8.8,
+      "age_hours": 15.0,
       "files_changed": 2,
       "lines_changed": 1471,
       "batch_id": "batch-test-001"
-    },
-    {
-      "number": 14700,
-      "title": "Add git credentials cleanup step before agent execution",
-      "url": "https://github.com/github/gh-aw/pull/14700",
-      "author": "Copilot",
-      "workflow": "manual",
-      "draft": true,
-      "category": "chore",
-      "risk": "high",
-      "priority_score": 29,
-      "impact_score": 18,
-      "urgency_score": 5,
-      "quality_score": 6,
-      "action": "defer",
-      "ci_status": "pending",
-      "age_hours": 0.4,
-      "files_changed": 100,
-      "lines_changed": 200,
-      "batch_id": null
     }
   ],
   "statistics": {
     "by_category": {
-      "test": 2,
-      "bug": 1,
-      "chore": 1
+      "test": 1
     },
     "by_risk": {
-      "low": 1,
-      "medium": 1,
-      "high": 2
-    },
-    "by_priority": {
-      "high": 1,
-      "medium": 2,
       "low": 1
     },
+    "by_priority": {
+      "medium": 1
+    },
     "by_action": {
-      "fast_track": 1,
-      "batch_review": 2,
-      "defer": 1,
+      "batch_review": 1,
       "auto_merge": 0,
+      "fast_track": 0,
+      "defer": 0,
       "close": 0
     }
   },
   "auto_merge_candidates": [],
-  "fast_track_needed": [14701],
+  "fast_track_needed": [],
   "batches": {
     "batch-test-001": {
-      "pr_numbers": [14702, 14682],
+      "pr_numbers": [14682],
       "category": "test",
-      "risk": "low-medium",
-      "count": 2,
+      "risk": "low",
+      "count": 1,
       "description": "Test workflow additions - can be reviewed together"
     }
   },
   "close_candidates": [],
-  "notes": "Release mode: 4 PRs triaged. PR #14701 (security fix) requires immediate fast-track review. PRs #14702 and #14682 batched for efficient review. PR #14700 deferred due to high risk/low priority combination."
+  "notes": "Excellent backlog health: Only 1 open agent PR (75% reduction from previous run). No critical issues. All resolved PRs from last run suggest effective triage prioritization."
 }

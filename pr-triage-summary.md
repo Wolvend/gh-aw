@@ -1,35 +1,23 @@
-# PR Triage Summary - 2026-02-10 00:45 UTC
+# PR Triage Summary
 
-**Run ID:** 21846903380
+**Last Updated:** 2026-02-10T06:32:00Z  
+**Run ID:** 21854355272
 
 ## Quick Stats
-- **Total PRs:** 4
-- **Fast-track:** 1 (PR #14701 - Security)
-- **Batch Review:** 2 (PRs #14702, #14682)
-- **Deferred:** 1 (PR #14700)
+- **Open Agent PRs:** 1
+- **Backlog Trend:** ⬇️ Down 75% (from 4 to 1)
+- **High Priority:** 0
+- **Auto-merge Ready:** 0
+- **Action Required:** None (batch review scheduled)
 
-## Priority Order
-1. 🔥 **PR #14701** (82/100) - API key masking security fix - **FAST TRACK**
-2. 📌 **PR #14702** (41/100) - Strict regex slash commands - batch-test-001
-3. 📌 **PR #14682** (39/100) - Token failure tests - batch-test-001
-4. 📌 **PR #14700** (29/100) - Git credentials cleanup - **DEFER**
+## Recent Runs
 
-## Batches
-- **batch-test-001**: PRs #14702, #14682 (test infrastructure improvements)
+### Run #21854355272 (Current)
+- Date: 2026-02-10 06:32 UTC
+- PRs: 1 (0 new, 1 re-triaged)
+- Status: ✅ Excellent backlog health
 
-## Actions Taken
-✅ Labels applied to all 4 PRs
-✅ Triage comments added to all 4 PRs
-✅ Issue created with comprehensive report
-✅ State saved to repo memory
-
-## Key Insights
-- Security-critical PR requires immediate attention (API key masking)
-- Test infrastructure PRs can be efficiently batch reviewed
-- PR #14700 needs more development time before review (defer)
-
-## Next Run
-Recommended in 6 hours to check for:
-- New PRs from agents
-- CI status updates on existing PRs
-- Draft status changes
+### Run #21846903380 (Previous)
+- Date: 2026-02-10 00:45 UTC
+- PRs: 4 (1 fast-track, 2 batch, 1 defer)
+- Status: ✅ 3 PRs resolved since this run
