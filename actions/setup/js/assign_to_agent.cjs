@@ -7,6 +7,7 @@ const { AGENT_LOGIN_NAMES, getAvailableAgentLogins, findAgent, getIssueDetails, 
 const { getErrorMessage } = require("./error_helpers.cjs");
 const { resolveTarget } = require("./safe_output_helpers.cjs");
 const { loadTemporaryIdMap, resolveRepoIssueTarget } = require("./temporary_id.cjs");
+const { sleep } = require("./error_recovery.cjs");
 
 async function main() {
   const result = loadAgentOutput();
@@ -111,7 +112,8 @@ async function main() {
 
   // Process each agent assignment
   const results = [];
-  for (const item of itemsToProcess) {
+  for (let i = 0; i < itemsToProcess.length; i++) {
+    const item = itemsToProcess[i];
     const agentName = item.agent ?? defaultAgent;
 
     // Use these variables to allow temporary IDs to override target repo per-item.
@@ -349,6 +351,13 @@ async function main() {
         success: false,
         error: errorMessage,
       });
+    }
+
+    // Add 10-second delay between agent assignments to avoid spawning too many agents at once
+    // Skip delay after the last item
+    if (i < itemsToProcess.length - 1) {
+      core.info("Waiting 10 seconds before processing next agent assignment...");
+      await sleep(10000);
     }
   }
 
