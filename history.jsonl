@@ -808,3 +808,66 @@
 {"date":"2026-02-08","timestamp":1770548484,"metrics":{"size":{"lines_of_code_total":746190,"total_files":2231,"total_comments":42277,"comment_ratio":5.67},"quality":{"large_files_count":196,"average_file_size":282},"tests":{"test_files":912,"test_lines_of_code":280694,"source_lines_of_code":124131,"test_to_source_ratio":2.261},"churn":{"source":{"commits":391,"files_modified":1586,"lines_added":125972,"lines_deleted":103064,"net_change":22908},"lock_files":{"files_modified":156,"lines_added":26755,"lines_deleted":38131,"net_change":-11376}},"workflows":{"total_workflows":207,"lock_files":147,"average_workflow_size":258},"docs":{"doc_files":113,"doc_loc":31796,"code_to_docs_ratio":23.47}},"quality_score":{"total_score":67.1,"breakdown":{"test_coverage":30.0,"code_organization":25,"documentation":4.3,"churn_stability":5,"comment_density":2.8}}}
 {"date":"2026-02-09","timestamp":1739102400,"metrics":{"size":{"lines_of_code_total":539366,"by_language":{"Go":{"loc":403267,"files":1413},"JavaScript":{"loc":1916,"files":8},"TypeScript":{"loc":1633,"files":17},"Markdown":{"loc":96899,"files":375},"YAML":{"loc":1029,"files":4},"JSON":{"loc":26800,"files":26},"Shell":{"loc":7822,"files":54}},"by_directory":{"pkg":{"loc":407080,"files":1542},"cmd":{"loc":2090,"files":8},"docs":{"loc":32957,"files":128},"scratchpad":{"loc":33661,"files":54},".github":{"loc":247866,"files":403},"internal":{"loc":74,"files":2},"examples":{"loc":135,"files":3}}},"quality":{"large_files_count":199,"avg_file_size":86.0,"comment_lines":44931,"comment_ratio":0.363},"tests":{"test_files":917,"test_lines_of_code":283070,"source_lines_of_code":123746,"test_to_source_ratio":2.287},"churn":{"source":{"files_modified":1566,"commits":436,"lines_added":123583,"lines_deleted":99452,"net_change":24131},"lock_files":{"files_modified":0,"lines_added":0,"lines_deleted":0,"net_change":0}},"workflows":{"total_workflows":208,"lock_files":148,"workflow_loc":53645,"avg_workflow_size":257.9},"docs":{"doc_files":172,"doc_md_files":114,"doc_loc":32091,"code_to_docs_ratio":3.85}},"quality_score":{"total":82.0,"components":{"test_coverage":{"score":30.0,"max":30},"code_organization":{"score":25.0,"max":25},"documentation":{"score":18.5,"max":20},"churn_stability":{"score":0.0,"max":15},"comment_density":{"score":8.5,"max":10}}}}
 {"date":"2026-02-10","timestamp":1770721722,"metrics":{"size":{"lines_of_code_total":794742,"total_files":2832,"by_language":{"Go":{"loc":404755,"files":1417},"JavaScript":{"loc":1916,"files":8},"TypeScript":{"loc":1633,"files":17},"Python":{"loc":829,"files":3},"YAML":{"loc":186308,"files":175},"Markdown":{"loc":162090,"files":640},"Shell":{"loc":7935,"files":56},"JSON":{"loc":29276,"files":40}}},"quality":{"large_files_count":20,"avg_file_size":280,"total_files":2832},"tests":{"test_files":918,"test_lines_of_code":284221,"source_lines_of_code":132847,"test_to_source_ratio":2.139},"churn":{"commits_7d":446,"source":{"files_modified":867,"lines_added":53182,"lines_deleted":27519,"net_change":25663,"most_active_files":[{"file":"specs/artifacts.md","added":5817,"deleted":99,"net":5718},{"file":".github/aw/main_workflow_schema.json","added":1,"deleted":5341,"net":-5340},{"file":"pkg/cli/templates/github-agentic-workflows.md","added":35,"deleted":1830,"net":-1795},{"file":"pkg/workflow/compiler_orchestrator_workflow_test.go","added":1457,"deleted":0,"net":1457},{"file":"pkg/workflow/compiler_jobs_test.go","added":1394,"deleted":10,"net":1384},{"file":"research/blog-research/BLOG-RESEARCH.md","added":1385,"deleted":0,"net":1385},{"file":"skills/dictation/SKILL.md","added":984,"deleted":241,"net":743},{"file":"pkg/workflow/compiler_yaml_main_job_test.go","added":820,"deleted":0,"net":820},{"file":"pkg/workflow/compiler_orchestrator_tools_test.go","added":768,"deleted":0,"net":768},{"file":"pkg/workflow/compiler_test.go","added":685,"deleted":58,"net":627}]},"lock_files":{"files_modified":156,"lines_added":33660,"lines_deleted":41811,"net_change":-8151}},"workflows":{"total_workflows":208,"lock_files":148,"avg_workflow_size":257,"total_workflow_loc":53637},"docs":{"doc_files":115,"doc_loc":32179,"code_to_docs_ratio":4.12}},"quality_score":{"total":84.95,"components":{"test_coverage":{"score":30,"max":30,"percentage":100.0},"code_organization":{"score":24.95,"max":25,"percentage":99.8},"documentation":{"score":20,"max":20,"percentage":100.0},"churn_stability":{"score":0,"max":15,"percentage":0.0},"comment_density":{"score":10,"max":10,"percentage":100.0}}},"trends":{"loc_7d":{"change":0.0,"indicator":"\u27a1\ufe0f"},"test_ratio_7d":{"change":-3.6,"indicator":"\u27a1\ufe0f"},"quality_7d":{"change":0.0,"indicator":"\u27a1\ufe0f"},"loc_30d":{"change":0.0,"indicator":"\u27a1\ufe0f"},"test_ratio_30d":{"change":0.0,"indicator":"\u27a1\ufe0f"},"quality_30d":{"change":0.0,"indicator":"\u27a1\ufe0f"}}}
+{
+  "date": "2026-02-11",
+  "timestamp": 1739274360,
+  "metrics": {
+    "size": {
+      "loc_by_language": {
+        "go": 405291,
+        "js": 1916,
+        "ts": 1645,
+        "py": 829,
+        "md": 161591,
+        "yml": 184705,
+        "json": 29219,
+        "sh": 7935
+      },
+      "loc_by_directory": {
+        "cmd": 2093,
+        "pkg": 420940,
+        "docs": 894441,
+        ".github/workflows": 238846,
+        "internal": 74
+      },
+      "total_files": 3195
+    },
+    "quality": {
+      "large_files": 202,
+      "avg_file_size": 565,
+      "comment_lines": 45051,
+      "comment_ratio": 0.36
+    },
+    "tests": {
+      "test_files": 1103,
+      "test_loc": 344607,
+      "source_loc": 125346,
+      "test_to_source_ratio": 2.75
+    },
+    "churn": {
+      "source": {
+        "files_modified": 1455,
+        "lines_added": 50565,
+        "lines_deleted": 17062,
+        "net_change": 33503,
+        "commits": 410
+      },
+      "lock_files": {
+        "files_modified": 4476,
+        "lines_added": 35329,
+        "lines_deleted": 40413,
+        "net_change": -5084
+      }
+    },
+    "workflows": {
+      "total_workflows": 207,
+      "lock_files": 147,
+      "avg_workflow_size": 256
+    },
+    "docs": {
+      "doc_files": 189,
+      "doc_loc": 894441,
+      "code_to_docs_ratio": 0.14
+    }
+  }
+{"date": "2026-02-11", "timestamp": 1739274360, "metrics": {"size": {"loc_by_language": {"go": 405291, "js": 1916, "ts": 1645, "py": 829, "md": 161591, "yml": 184705, "json": 29219, "sh": 7935}, "loc_by_directory": {"cmd": 2093, "pkg": 420940, "docs": 894441, ".github/workflows": 238846, "internal": 74}, "total_files": 3195}, "quality": {"large_files": 202, "avg_file_size": 565, "comment_lines": 45051, "comment_ratio": 0.36}, "tests": {"test_files": 1103, "test_loc": 344607, "source_loc": 125346, "test_to_source_ratio": 2.75}, "churn": {"source": {"files_modified": 1455, "lines_added": 50565, "lines_deleted": 17062, "net_change": 33503, "commits": 410}, "lock_files": {"files_modified": 4476, "lines_added": 35329, "lines_deleted": 40413, "net_change": -5084}}, "workflows": {"total_workflows": 207, "lock_files": 147, "avg_workflow_size": 256}, "docs": {"doc_files": 189, "doc_loc": 894441, "code_to_docs_ratio": 0.14}}}
