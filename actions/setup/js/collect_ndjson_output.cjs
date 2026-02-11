@@ -4,21 +4,7 @@
 const { getErrorMessage } = require("./error_helpers.cjs");
 const { repairJson } = require("./json_repair_helpers.cjs");
 const { AGENT_OUTPUT_FILENAME, TMP_GH_AW_PATH } = require("./constants.cjs");
-
-/**
- * Sanitizes a value for safe use in shell commands by removing/escaping shell metacharacters
- * @param {any} value - The value to sanitize
- * @returns {any} - Sanitized value (strings are processed, other types returned as-is)
- */
-function sanitizeForShell(value) {
-  if (typeof value !== "string") return value;
-
-  // Remove shell metacharacters
-  return value
-    .replace(/[$`\\]/g, "\\$&") // Escape $, `, \
-    .replace(/[();&|<>]/g, "") // Remove dangerous chars
-    .substring(0, 1000); // Limit length
-}
+const { sanitizeForShell } = require("./sanitize_shell.cjs");
 
 async function main() {
   try {
@@ -351,4 +337,4 @@ async function main() {
   }
 }
 
-module.exports = { main, sanitizeForShell };
+module.exports = { main };
